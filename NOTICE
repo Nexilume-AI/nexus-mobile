@@ -1,0 +1,32 @@
+Nexus Mobile
+Copyright Nexus contributors
+
+The Community Apache-2.0 license grant covers Nexus-authored source only. This
+notice does not relicense dependencies, the Android SDK, Google Play services,
+or separately licensed upstream components. Retain their applicable notices
+when distributing source or binaries. The mixed Enterprise repository is not
+included in the Community license grant.
+
+Gradle Wrapper
+--------------
+The gradlew / gradlew.bat launcher scripts retain their original authors'
+Apache-2.0 notices. gradle/wrapper/gradle-wrapper.jar is an upstream binary and
+retains the complete Apache-2.0 text in META-INF/LICENSE.
+
+The existing bootstrap JAR has SHA-256:
+7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172
+This matches the official Gradle 8.14.3 wrapper checksum (also shared by other
+upstream releases); it is not the Gradle 8.9 wrapper. It has not been replaced
+or modified as part of the Community preparation.
+
+The project still downloads and runs the Gradle 8.9 binary distribution,
+independently pinned by distributionSha256Sum in gradle-wrapper.properties:
+d725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab
+
+Official reference, checked 2026-09-10:
+https://gradle.org/release-checksums/
+Upstream project and source: https://github.com/gradle/gradle
+
+These checks establish the identity of the existing bootstrap and requested
+distribution, not a vulnerability audit, Android release certification, or
+approval to publish unreviewed Nexus source.

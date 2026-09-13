@@ -1,0 +1,46 @@
+name: Build signed release candidate
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  signed-candidate:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    environment: mobile-release
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify wrapper
+        run: echo "7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172  gradle/wrapper/gradle-wrapper.jar" | sha256sum -c -
+      - name: Install Android platform
+        run: |
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;35.0.0"
+      - name: Build with protected signing identity
+        env:
+          KEYSTORE_BASE64: ${{ secrets.NEXUS_MOBILE_KEYSTORE_BASE64 }}
+          NEXUS_MOBILE_STORE_PASSWORD: ${{ secrets.NEXUS_MOBILE_STORE_PASSWORD }}
+          NEXUS_MOBILE_KEY_ALIAS: ${{ secrets.NEXUS_MOBILE_KEY_ALIAS }}
+          NEXUS_MOBILE_KEY_PASSWORD: ${{ secrets.NEXUS_MOBILE_KEY_PASSWORD }}
+          EXPECTED_CERTIFICATE: ${{ vars.NEXUS_MOBILE_SIGNER_SHA256 }}
+        run: |
+          set -eu
+          test -n "$KEYSTORE_BASE64"
+          test -n "$EXPECTED_CERTIFICATE"
+          export NEXUS_MOBILE_KEYSTORE="$RUNNER_TEMP/nexus-mobile-release.jks"
+          trap 'rm -f "$NEXUS_MOBILE_KEYSTORE"' EXIT
+          python3 -c 'import base64,os,pathlib; p=pathlib.Path(os.environ["NEXUS_MOBILE_KEYSTORE"]); p.write_bytes(base64.b64decode(os.environ["KEYSTORE_BASE64"],validate=True)); p.chmod(0o600)'
+          sh gradlew testDebugUnitTest lintRelease assembleRelease --no-daemon
+          python3 tools/verify_release.py --apk app/build/outputs/apk/release/app-release.apk --aapt "$ANDROID_HOME/build-tools/35.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/35.0.0/apksigner" --require-signed --expected-certificate "$EXPECTED_CERTIFICATE"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: signed-release-candidate
+          path: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/apk/release/app-release.apk.sha256
+          if-no-files-found: error

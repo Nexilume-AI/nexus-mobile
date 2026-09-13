@@ -1,0 +1,12 @@
+<resources>
+    <color name="nexus_canvas">#F4F7FB</color>
+    <color name="nexus_surface">#FFFFFF</color>
+    <color name="nexus_ink">#172033</color>
+    <color name="nexus_muted">#5F6B7A</color>
+    <color name="nexus_accent">#1769E0</color>
+    <color name="nexus_accent_dark">#0F4FAF</color>
+    <color name="nexus_success">#137A55</color>
+    <color name="nexus_warning">#9A5B00</color>
+    <color name="nexus_danger">#B42318</color>
+    <color name="nexus_line">#D9E1EC</color>
+</resources>

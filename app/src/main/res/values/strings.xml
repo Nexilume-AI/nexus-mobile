@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Nexus Mobile</string>
+    <string name="accessibility_service_description">Allows Nexus agents to observe and control this Android device after explicit pairing.</string>
+</resources>

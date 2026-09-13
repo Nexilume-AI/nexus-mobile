@@ -1,0 +1,15 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity
+            android:name=".MobileE2EActivity"
+            android:exported="false" />
+        <receiver
+            android:name=".MobileE2ECommandReceiver"
+            android:permission="android.permission.DUMP"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.nexus.mobile.DEBUG_E2E_COMMAND" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>
