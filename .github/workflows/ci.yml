@@ -24,7 +24,7 @@ jobs:
         run: python3 -m unittest discover -s tools -p test_verify_release.py
       - name: Inspect unsigned review artifact
         run: python3 tools/verify_release.py --apk app/build/outputs/apk/release/app-release-unsigned.apk --aapt "$ANDROID_HOME/build-tools/35.0.0/aapt"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: unsigned-review-apk-not-for-installation
           path: |

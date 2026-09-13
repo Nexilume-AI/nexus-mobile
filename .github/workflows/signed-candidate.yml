@@ -37,7 +37,7 @@ jobs:
           python3 -c 'import base64,os,pathlib; p=pathlib.Path(os.environ["NEXUS_MOBILE_KEYSTORE"]); p.write_bytes(base64.b64decode(os.environ["KEYSTORE_BASE64"],validate=True)); p.chmod(0o600)'
           sh gradlew testDebugUnitTest lintRelease assembleRelease --no-daemon
           python3 tools/verify_release.py --apk app/build/outputs/apk/release/app-release.apk --aapt "$ANDROID_HOME/build-tools/35.0.0/aapt" --apksigner "$ANDROID_HOME/build-tools/35.0.0/apksigner" --require-signed --expected-certificate "$EXPECTED_CERTIFICATE"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: signed-release-candidate
           path: |
