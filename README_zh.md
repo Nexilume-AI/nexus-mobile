@@ -4,7 +4,7 @@
 
 **Connect your phone. Stay in control.**
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-17251d.svg)](LICENSE)
+[![License: Nexus Community](https://img.shields.io/badge/License-Nexus_Community-17251d.svg)](LICENSE)
 [![文档](https://img.shields.io/badge/Read-the_docs-b8ef73.svg)](README_GUIDE.md)
 [![引用项目](https://img.shields.io/badge/Cite-this_software-e8e9e4.svg)](#引用)
 [![Repository checks](https://github.com/Nexilume-AI/nexus-mobile/actions/workflows/ci.yml/badge.svg)](https://github.com/Nexilume-AI/nexus-mobile/actions/workflows/ci.yml)
@@ -100,4 +100,8 @@ Windows 使用 `./gradlew.bat` 和相同参数。签名及验证见[发布指南
 
 ## 许可证
 
-Nexus 自有代码采用 [Apache-2.0](LICENSE)。第三方组件保留各自许可证与声明；公开文档不授予独立企业版实现的使用权。
+Nexus 自有代码采用 [Nexus Community License 1.0](LICENSE)。第三方组件保留各自许可证与声明；公开文档不授予独立企业版实现的使用权。
+
+### Licensing conditions / 许可条件
+
+Source-available, not unmodified Apache-2.0 or OSI-approved open source. Multi-tenant service operation and removal of existing Nexus UI branding require prior written authorization. Earlier Apache-2.0 grants and third-party licenses remain unchanged. Contributions require explicit agreement permitting commercial use and future relicensing. 许可说明：[LICENSING.md](LICENSING.md)。授权联系：**cary.nexilume@outlook.com**。
