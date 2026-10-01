@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "Please cite this repository and record the release or commit used."
+type: software
+title: "Nexus Mobile"
+authors:
+  - name: "Nexus contributors"
+repository-code: "https://github.com/Nexilume-AI/nexus-mobile"
+url: "https://github.com/Nexilume-AI/nexus-mobile"
+license: Apache-2.0
+keywords:
+  - "Android"
+  - "Explicit pairing"
+  - "Scoped access"

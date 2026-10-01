@@ -1,67 +1,109 @@
+<div align="center">
+
 # Nexus Mobile
 
-An Android companion that lets authorized Nexus agents observe and interact with a phone. Pairing and Android Accessibility permission are explicit; synchronization uses a visible foreground service.
+**Connect your phone. Stay in control.**
 
-## Requirements
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-17251d.svg)](LICENSE)
+[![Documentation](https://img.shields.io/badge/Read-the_docs-b8ef73.svg)](README_GUIDE.md)
+[![Cite this software](https://img.shields.io/badge/Cite-this_software-e8e9e4.svg)](#citation)
+[![Repository checks](https://github.com/Nexilume-AI/nexus-mobile/actions/workflows/ci.yml/badge.svg)](https://github.com/Nexilume-AI/nexus-mobile/actions/workflows/ci.yml)
 
-- Android 8.0 (API 26) or newer. One-time screenshots require Android 11+.
-- A compatible Nexus Cloud deployment and permission to register a Mobile device.
-- Google Play services for the Google Code Scanner pairing flow. This is not a verified Google-free Android distribution.
-- To build: JDK 17, Android SDK platform 36, and the checked-in Gradle wrapper. AGP 8.7.3 currently uses an explicit compileSdk 36 compatibility-warning suppression; this is tracked in RELEASE.md rather than treated as broad device certification.
+`Android` · `Explicit pairing` · `Scoped access`
 
-## Build from source
+**English** · [简体中文](README_zh.md)
 
-Install Android Studio or the command-line Android SDK. Set JAVA_HOME to JDK 17 and ANDROID_HOME to your SDK directory. Alternatively create an untracked local.properties with sdk.dir pointing to your SDK. No machine-specific Java path is committed.
+[Highlights](#highlights) · [Quick start](#quick-start) · [Documentation](#documentation) · [Ecosystem](#ecosystem) · [Contributing](#contributing) · [Citation](#citation)
 
-Linux/macOS:
+</div>
+
+An Android companion for caller-authorized Agent workflows. Pair explicitly, enable the required permissions, and keep device synchronization visible.
+
+![Nexus Mobile: illustrated workflow](docs/media/overview.svg)
+
+*Workflow illustration, not a product screenshot. Connections require the setup and authorization described below.*
+
+## Highlights
+
+| Step | You remain in control |
+| --- | --- |
+| **Pair** | Scan a short-lived QR and confirm the server/device identity |
+| **Authorize** | Enable Accessibility explicitly, then grant required Run scopes in Cloud |
+| **Observe and act** | Supported Agent workflows can use authorized phone capabilities |
+| **Pause or revoke** | Pause visible synchronization, disconnect locally or revoke in Cloud |
+
+## Quick start
+
+**Requirements:** Android 8.0+, a compatible Nexus Cloud, and Google Play services for the scanner flow. One-time screenshots require Android 11+.
+
+Build with JDK 17 and Android SDK platform 36:
 
 ```sh
 sh gradlew testDebugUnitTest lintRelease assembleRelease --no-daemon
 ```
 
-Windows PowerShell:
+On Windows use `./gradlew.bat` with the same arguments. Follow [RELEASE.md](RELEASE.md) to sign and verify an installable package.
 
-```powershell
-.\gradlew.bat testDebugUnitTest lintRelease assembleRelease --no-daemon
+> [!IMPORTANT]
+> `app-release-unsigned.apk` is a build artifact, not an installable public release. Debug APKs are for controlled development, not public distribution. See the [build reference](README_GUIDE.md#build-from-source) for complete instructions and toolchain caveats.
+
+## Pair, attach, run
+
+1. In Nexus Console, create a Mobile device and display its pairing QR.
+2. Scan in Nexus Mobile; review the identity and choose **Confirm and connect**.
+3. Enable **Nexus Mobile Control** in Android Accessibility settings.
+4. Allow notifications and start sync. Verify the visible foreground notification and online state in Console.
+5. Attach the device to a Run and grant only the scopes the Agent needs.
+
+**Success looks like:** the authorized device is online and a supported Agent action returns its result. Pairing is not blanket authorization for every Agent.
+
+## Privacy by workflow
+
+Use test apps and synthetic data. Pause synchronization before entering sensitive information. Detection/redaction is best-effort; screenshots must respect secure surfaces. Revocation stops authorization for new commands but cannot undo an action already performed.
+
+## Documentation
+
+| Goal | Guide |
+| --- | --- |
+| Build, install and troubleshoot | [Setup reference](README_GUIDE.md) |
+| Sign and verify a release | [Release guide](RELEASE.md) |
+| Understand data handling | [Privacy](PRIVACY.md) |
+| Review platform limitations | [Constraints](docs/CONSTRAINTS.md) |
+| Check real-device validation requirements | [Device acceptance](docs/DEVICE_ACCEPTANCE.md) |
+
+Android support is not a claim of iOS or Google-free device compatibility. Cloud is installed separately.
+
+## Ecosystem
+
+| Project | Role | Install separately? |
+| --- | --- | --- |
+| [Cloud Community](https://github.com/Nexilume-AI/nexus-cloud-community) | Server, Web Console and bundled Cloud Relay | Main workspace |
+| [Python SDK](https://github.com/Nexilume-AI/nexus-agent-sdk-python) | Agent applications and outbound Computer Runtime | Yes |
+| [OpenWrt](https://github.com/Nexilume-AI/nexus-openwrt) | Edge registration and capability routing | Optional |
+| [Mobile](https://github.com/Nexilume-AI/nexus-mobile) | Authorized Android device integration | Optional |
+| [Documentation](https://github.com/Nexilume-AI/nexus-docs) | User guides and reference | Read online or build locally |
+
+Repository access, release availability and compatibility determine which integrations you can install. Cloud installation does not install device runtimes.
+
+## Contributing
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md). Small reproducible fixes, clearer tutorials, translations and sanitized examples are welcome. Use [Issues](https://github.com/Nexilume-AI/nexus-mobile/issues) for reproducible bugs; include versions and redacted diagnostics, never credentials or private files.
+
+Follow [SECURITY.md](SECURITY.md) for security reports. Release checks and CI are not a guarantee of production readiness on every platform.
+
+## Citation
+
+If this software helps your work, cite the repository and record the exact release or commit you used. [CITATION.cff](CITATION.cff) provides machine-readable software metadata; this is a **software citation**, not a claim of a peer-reviewed paper or DOI.
+
+```bibtex
+@misc{nexus_mobile,
+  author       = {{Nexus contributors}},
+  title        = {Nexus Mobile},
+  howpublished = {\url{https://github.com/Nexilume-AI/nexus-mobile}},
+  note         = {Software; specify the release or commit used}
+}
 ```
 
-Unsigned output: `app/build/outputs/apk/release/app-release-unsigned.apk`. Without signing credentials this is a build artifact, not an installable public release. See [RELEASE.md](RELEASE.md) for signing and verification.
+## License
 
-For a development APK use `assembleDebug`, then `adb install -r app/build/outputs/apk/debug/app-debug.apk`. Debug is for controlled testing only; do not distribute it as a release. On Windows paths containing non-ASCII characters, use `-PnexusMobileBuildDir=<absolute-ASCII-output-directory>` if test workers cannot load classes; all app output then moves under that directory.
-
-## Pair and connect
-
-1. In Nexus Console create a Mobile device and display its short-lived pairing QR.
-2. Open Nexus Mobile, scan the QR, review the server/device identity, and select **Confirm and connect**.
-3. Enable **Nexus Mobile Control** in Android Accessibility settings.
-4. Allow notifications and start sync. Check that the foreground notification remains visible and Console reports the device online.
-5. Attach the device to an Agent Run and grant only the Mobile scopes needed for that Run.
-
-Release pairing requires HTTPS with a certificate trusted by Android. Debug permits local-development HTTP hosts. Pairing credentials are encrypted using Android Keystore; they are not Agent API keys. Pairing alone does not authorize every Agent to control the phone.
-
-## Pause, disconnect and revoke
-
-Use **Pause Nexus sync** or the notification's Pause action before entering sensitive information. Use the app's disconnect/unpair flow to remove local pairing. Revoke/delete or rotate the device credential in Console to stop server authorization. After revocation, verify the device stops receiving new commands. Disable Accessibility when you no longer want device control. A command already dispatched may have executed; revocation does not roll back its effects.
-
-## Privacy and limitations
-
-Observations redact detectable password, payment and verification contexts. Detection is best-effort, not a guarantee that arbitrary app content contains no personal data. Screenshots are optional, must not bypass FLAG_SECURE, and require a supported OS and an explicit command. Do not use financial or personal accounts for testing.
-
-See [PRIVACY.md](PRIVACY.md), [SECURITY.md](SECURITY.md), [constraints](docs/CONSTRAINTS.md), and [device acceptance](docs/DEVICE_ACCEPTANCE.md).
-
-## Troubleshooting
-
-| Problem | Check |
-| --- | --- |
-| Build cannot find Java or Android SDK | JAVA_HOME / ANDROID_HOME and JDK 17; do not commit local.properties |
-| QR scanner is unavailable | Google Play services availability and the scanner module download |
-| Pairing rejected | QR expiry, server identity and trusted HTTPS certificate |
-| setup_required | Accessibility service is not active |
-| No commands arrive | Sync status, Cloud availability, device authorization and Run scopes |
-| Screenshot denied | Android version, secure surfaces and sensitive screen content |
-| Background sync stops | Foreground notification, OS background restrictions and battery policy |
-| APK update rejected | Same application ID, signing certificate and increased versionCode required |
-
-## License and contributions
-
-Nexus-authored source uses [Apache-2.0](LICENSE). Preserve [NOTICE](NOTICE); Google components and other dependencies keep their own licenses. See [CONTRIBUTING.md](CONTRIBUTING.md). This repository does not contain the Nexus Cloud implementation or grant access to privately distributed Cloud packages.
+Nexus-authored source is distributed under [Apache-2.0](LICENSE). Third-party components retain their own licenses and notices. Documentation does not grant rights to separately distributed Enterprise implementation.
