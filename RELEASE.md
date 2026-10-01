@@ -28,6 +28,20 @@ Increment versionCode and versionName in app/build.gradle.kts. Upgrades require 
 
 ## Release gates
 
+### Opt-in Beta downloads
+
+A maintainer-authorized prerelease may provide a signed APK for voluntary testing before the physical-device checklist is complete. It must be marked **prerelease**, list every unverified device/upgrade gate explicitly, and must not claim production acceptance. Build, unit tests, release lint, APK manifest/icon inspection and signature verification remain mandatory. Never publish a debug APK or unsigned APK as an installable Beta.
+
+Version `0.1.1-beta.1` (versionCode `2`) establishes the first public signing identity. Its certificate SHA-256 is:
+
+```text
+7536f39a7c308c6f578f0946a730d096ab8e4f61647f67208f586bf423ff426c
+```
+
+The private keystore stays outside the checkout with owner-only access. Back up the keystore and its password securely before relying on future releases; an encrypted password protected by the current OS user alone is not a disaster-recovery backup. A new key is not a compatible substitute. Release assets contain only the APK, checksums, public certificate and public verification evidence.
+
+### Stable release requirements
+
 - Unit tests, release lint, APK boundary inspection, source secret scan and wrapper checksum pass.
 - Real-device checklist in docs/DEVICE_ACCEPTANCE.md passes against a test Cloud.
 - Signing certificate continuity and upgrade test pass.

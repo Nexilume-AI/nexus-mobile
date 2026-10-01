@@ -9,6 +9,14 @@ An Android companion that lets authorized Nexus agents observe and interact with
 - Google Play services for the Google Code Scanner pairing flow. This is not a verified Google-free Android distribution.
 - To build: JDK 17, Android SDK platform 36, and the checked-in Gradle wrapper. AGP 8.7.3 currently uses an explicit compileSdk 36 compatibility-warning suppression; this is tracked in RELEASE.md rather than treated as broad device certification.
 
+## Download the Android Beta
+
+[Download Nexus Mobile 0.1.1-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.1/nexus-mobile-0.1.1-beta.1.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.1)
+
+The APK is a signed, non-debuggable release build with the Nexus launcher and notification logo. On Android, allow installation from the browser or file manager you use to open it. Review the release notes before enabling Accessibility. Requires Android 8.0+; the pairing scanner requires Google Play services.
+
+This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance and upgrade continuity from an earlier signed release have not yet been verified. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
+
 ## Build from source
 
 Install Android Studio or the command-line Android SDK. Set JAVA_HOME to JDK 17 and ANDROID_HOME to your SDK directory. Alternatively create an untracked local.properties with sdk.dir pointing to your SDK. No machine-specific Java path is committed.

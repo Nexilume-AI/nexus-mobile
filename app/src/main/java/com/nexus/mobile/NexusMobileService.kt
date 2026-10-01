@@ -230,7 +230,7 @@ class NexusMobileService : Service() {
             .setContentTitle(notificationTitle(state))
             .setContentText(message)
             .setStyle(Notification.BigTextStyle().bigText(message))
-            .setSmallIcon(android.R.drawable.stat_sys_upload)
+            .setSmallIcon(R.drawable.ic_nexus_notification)
             .setContentIntent(openIntent)
             .setOngoing(state in setOf(SyncState.CONNECTING, SyncState.ONLINE, SyncState.SETUP_REQUIRED))
             .addAction(android.R.drawable.ic_media_pause, "Pause", stopIntent)

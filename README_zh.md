@@ -30,6 +30,14 @@
 - 让支持的 Agent 观察和操作授权手机。
 - 保持可见前台同步通知，随时暂停同步、断开或撤销。
 
+## 下载 Android Beta
+
+[下载 Nexus Mobile 0.1.1-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.1/nexus-mobile-0.1.1-beta.1.apk) · [发布说明与校验值](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.1)
+
+这是带 Nexus 桌面图标和通知 Logo 的已签名、不可调试 Release 构建。在 Android 中为打开 APK 的浏览器或文件管理器允许安装应用；开启无障碍权限前请阅读发布说明。要求 Android 8.0+，扫码配对需要 Google Play services。
+
+本版为自愿试用的 **Beta**，不代表通过生产或全部机型认证。尚未完成真机端到端验收，也没有先前正式签名版本可供升级连续性测试。已安装的 Debug 版本使用不同签名，不能直接覆盖安装；如需迁移，请先保存需要的数据，再自行决定卸载 Debug 版本。
+
 ## 快速开始
 
 需要 Android 8.0+、兼容 Nexus Cloud，以及用于扫码的 Google Play services；单次截图要求 Android 11+。不是 iOS 客户端，也未宣称通过无 Google 服务设备验收。

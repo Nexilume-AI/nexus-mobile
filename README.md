@@ -32,6 +32,14 @@ An Android companion for caller-authorized Agent workflows. Pair explicitly, ena
 | **Observe and act** | Supported Agent workflows can use authorized phone capabilities |
 | **Pause or revoke** | Pause visible synchronization, disconnect locally or revoke in Cloud |
 
+## Download the Android Beta
+
+[Download Nexus Mobile 0.1.1-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.1/nexus-mobile-0.1.1-beta.1.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.1)
+
+The APK is a signed, non-debuggable release build with the Nexus launcher and notification logo. On Android, allow installation from the browser or file manager you use to open it. Review the release notes before enabling Accessibility. Requires Android 8.0+; the pairing scanner requires Google Play services.
+
+This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance and upgrade continuity from an earlier signed release have not yet been verified. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
+
 ## Quick start
 
 **Requirements:** Android 8.0+, a compatible Nexus Cloud, and Google Play services for the scanner flow. One-time screenshots require Android 11+.

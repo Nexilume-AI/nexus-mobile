@@ -1,0 +1,5 @@
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/nexus_launcher_background" />
+    <foreground android:drawable="@drawable/ic_nexus_foreground" />
+    <monochrome android:drawable="@drawable/ic_nexus_monochrome" />
+</adaptive-icon>
