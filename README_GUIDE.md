@@ -72,8 +72,8 @@ See [PRIVACY.md](PRIVACY.md), [SECURITY.md](SECURITY.md), [constraints](docs/CON
 
 ## License and contributions
 
-Nexus-authored source uses [Nexus Community License 1.0](LICENSE). Preserve [NOTICE](NOTICE); Google components and other dependencies keep their own licenses. See [CONTRIBUTING.md](CONTRIBUTING.md). This repository does not contain the Nexus Cloud implementation or grant access to privately distributed Cloud packages.
+Nexus-authored source uses [Apache License 2.0 (modified)](LICENSE). Preserve [NOTICE](NOTICE); Google components and other dependencies keep their own licenses. See [CONTRIBUTING.md](CONTRIBUTING.md). This repository does not contain the Nexus Cloud implementation or grant access to privately distributed Cloud packages.
 
 ### Licensing conditions
 
-Source-available, not unmodified Apache-2.0 or OSI-approved open source. Multi-tenant service operation and removal of existing Nexus UI branding require prior written authorization. Earlier Apache-2.0 grants and third-party licenses remain unchanged. Contributions require explicit agreement permitting commercial use and future relicensing. See [LICENSING.md](LICENSING.md). Authorization contact: **cary.nexilume@outlook.com**.
+Nexus is licensed under a modified version of the Apache License 2.0, with the following additional conditions. Multi-tenant service operation and removal of existing Nexus UI branding require prior written authorization. Earlier Apache-2.0 grants and third-party licenses remain unchanged. Contributions require explicit agreement permitting commercial use and future relicensing. See [LICENSING.md](LICENSING.md). Authorization contact: **cary.nexilume@outlook.com**.
