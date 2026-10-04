@@ -9,6 +9,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Display
+import android.view.WindowManager
+import android.util.DisplayMetrics
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import java.io.ByteArrayOutputStream
@@ -19,6 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 
 class NexusAccessibilityService : AccessibilityService() {
+    @Volatile var sharingPrivacy = MobileScreenPrivacy.UNKNOWN
+        private set
     private val mainHandler = Handler(Looper.getMainLooper())
     private val screenshotExecutor = Executors.newSingleThreadExecutor()
 
@@ -66,6 +70,7 @@ class NexusAccessibilityService : AccessibilityService() {
             screenshotFailure("SCREEN_CAPTURE_TIMEOUT", "Android did not return a screenshot in time."),
         )
         val latch = CountDownLatch(1)
+        val geometry = screenGeometry()
         runCatching {
             takeScreenshot(
                 Display.DEFAULT_DISPLAY,
@@ -85,7 +90,11 @@ class NexusAccessibilityService : AccessibilityService() {
                                     "Android returned an unreadable screenshot.",
                                 )
                             } else {
-                                encodeScreenshot(bitmap)
+                                if (screenGeometry() != geometry) {
+                                    screenshotFailure("SCREEN_CHANGED", "The phone rotated during capture. Capture again.")
+                                } else encodeScreenshot(bitmap).copy(
+                                    screenWidth = geometry.first, screenHeight = geometry.second, rotation = geometry.third,
+                                )
                             },
                         )
                         bitmap?.recycle()
@@ -134,11 +143,35 @@ class NexusAccessibilityService : AccessibilityService() {
     fun pressBackBlocking(): Boolean =
         callOnMain(false) { performGlobalAction(GLOBAL_ACTION_BACK) }
 
+    fun pressHomeBlocking(): Boolean = callOnMain(false) { performGlobalAction(GLOBAL_ACTION_HOME) }
+
+    fun pressRecentsBlocking(): Boolean = callOnMain(false) { performGlobalAction(GLOBAL_ACTION_RECENTS) }
+
+    @Suppress("DEPRECATION")
+    fun screenGeometry(): Triple<Int, Int, Int> {
+        val display = getSystemService(WindowManager::class.java).defaultDisplay
+        val metrics = DisplayMetrics()
+        display.getRealMetrics(metrics)
+        return Triple(metrics.widthPixels, metrics.heightPixels, display.rotation)
+    }
+
+    fun matchesScreen(expected: Map<*, *>): Boolean {
+        val (width, height, rotation) = screenGeometry()
+        return MobileControlContract.matchesScreen(expected, width, height, rotation)
+    }
+
+    fun longPressBlocking(x: Float, y: Float, pixels: Boolean, durationMs: Long): Boolean {
+        val (width, height) = screenGeometry()
+        val px = if (pixels) x else (width - 1) * x.coerceIn(0f, 1f)
+        val py = if (pixels) y else (height - 1) * y.coerceIn(0f, 1f)
+        return gestureBlocking(px, py, px, py, durationMs.coerceIn(500, 5000))
+    }
+
     fun tapNormalizedBlocking(x: Float, y: Float): Boolean {
-        val metrics = resources.displayMetrics
+        val (width, height) = screenGeometry()
         return tapPixelsBlocking(
-            metrics.widthPixels * x.coerceIn(0f, 1f),
-            metrics.heightPixels * y.coerceIn(0f, 1f),
+            (width - 1) * x.coerceIn(0f, 1f),
+            (height - 1) * y.coerceIn(0f, 1f),
         )
     }
 
@@ -152,12 +185,12 @@ class NexusAccessibilityService : AccessibilityService() {
         endY: Float,
         durationMs: Long,
     ): Boolean {
-        val metrics = resources.displayMetrics
+        val (width, height) = screenGeometry()
         return swipePixelsBlocking(
-            metrics.widthPixels * startX.coerceIn(0f, 1f),
-            metrics.heightPixels * startY.coerceIn(0f, 1f),
-            metrics.widthPixels * endX.coerceIn(0f, 1f),
-            metrics.heightPixels * endY.coerceIn(0f, 1f),
+            (width - 1) * startX.coerceIn(0f, 1f),
+            (height - 1) * startY.coerceIn(0f, 1f),
+            (width - 1) * endX.coerceIn(0f, 1f),
+            (height - 1) * endY.coerceIn(0f, 1f),
             durationMs,
         )
     }
@@ -183,6 +216,10 @@ class NexusAccessibilityService : AccessibilityService() {
         endY: Float,
         durationMs: Long,
     ): Boolean {
+        val (width, height) = screenGeometry()
+        if (listOf(startX, startY, endX, endY).any { !it.isFinite() } ||
+            startX < 0 || endX < 0 || startY < 0 || endY < 0 ||
+            startX >= width || endX >= width || startY >= height || endY >= height) return false
         val completed = AtomicBoolean(false)
         val latch = CountDownLatch(1)
         mainHandler.post {
@@ -216,6 +253,11 @@ class NexusAccessibilityService : AccessibilityService() {
     private fun observe(): MobileObservation {
         val root = rootInActiveWindow
         val sensitiveContext = hasSensitiveContext(root)
+        sharingPrivacy = when {
+            sensitiveContext -> MobileScreenPrivacy.SENSITIVE
+            root == null -> MobileScreenPrivacy.UNKNOWN
+            else -> MobileScreenPrivacy.CLEAR
+        }
         return MobileObservation(
             packageName = root?.packageName?.toString().orEmpty(),
             activityName = lastActivityName,

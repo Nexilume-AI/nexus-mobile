@@ -87,6 +87,9 @@ data class MobileScreenshotCapture(
     val contentType: String = "image/webp",
     val width: Int = 0,
     val height: Int = 0,
+    val screenWidth: Int = 0,
+    val screenHeight: Int = 0,
+    val rotation: Int = 0,
     val errorCode: String = "",
     val errorMessage: String = "",
 )

@@ -162,6 +162,17 @@ class MainActivity : Activity() {
             content.addView(if (config.isConfigured()) connectionCard(config, runtime) else notPairedCard())
             content.addView(space(14))
             content.addView(permissionCard(accessibilityReady))
+            if (MobileVideoSharing.activeId != null) {
+                content.addView(primaryButton(getString(R.string.video_stop)) { MobileVideoSharing.stop(this); render() }.withTopMargin(14))
+            } else if (MobileVideoSharing.pending != null) {
+                content.addView(card {
+                    addView(sectionTitle(getString(R.string.video_request)))
+                    addView(body(getString(R.string.video_consent)))
+                    addView(primaryButton(getString(R.string.video_share)) {
+                        startActivity(Intent(this@MainActivity, MobileScreenShareActivity::class.java))
+                    }.withTopMargin(12))
+                }.withTopMargin(14))
+            }
         }
         // Keep the existing debug acceptance hook, but out of the primary workflow.
         if (BuildConfig.DEBUG && pendingPairing == null) {

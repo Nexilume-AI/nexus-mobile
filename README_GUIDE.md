@@ -73,6 +73,42 @@ permissions are already granted. Missing permissions have a highlighted next ste
 Use **⋮ → Connection details**, **Privacy** or **Remove pairing** for less frequent actions. **Pause sync**
 stays available while connected, including in the menu when control is not ready.
 
+## Screen preview and control (current source)
+
+Updated Cloud, Web and Android builds support **live screen video** in the
+device's Control tab. Choose **Start live video**, open Nexus Mobile, tap
+**Share screen**, then approve Android's native screen-sharing prompt. Video
+has no audio or recording. **Stop video**, leaving the Control workspace,
+pausing sync, or removing pairing stops sharing; the phone also provides an
+ongoing notification with **Stop sharing**. Each new session needs new consent.
+
+After live frames arrive, explicitly enable **Control live screen** to tap,
+drag to swipe, or hold to long press. Commands still pass through the existing
+approval queue. A stale video, changed screen geometry or lost connection
+disables control rather than replaying a gesture. The Cloud's authenticated,
+short-lived signaling API exchanges SDP/ICE; media is encrypted WebRTC over a
+direct connection or the managed TURN relay. Configure Internet reachability
+using [the live-video guide](docs/LIVE_VIDEO.md); the Mobile
+repository itself does not include the Cloud server.
+
+Sensitive detected screens stop sharing. A brief unknown window transition
+drops frames; an unknown window lasting five seconds stops sharing. This
+best-effort detection is not a guarantee: stop sharing before sensitive work.
+Browsers require HTTPS (localhost is allowed). Old APKs retain the one-time
+screenshot flow rather than falsely advertising live video.
+
+The protected one-time screenshot remains independently available.
+In the device's Control tab, request a fresh capture, then explicitly enable
+**Control screen** to tap, drag to swipe, or hold to long press. A successful
+gesture requests a new capture; the device's approval policy still applies.
+Home and Recent apps are also available in the action selector. These new
+actions require updated Cloud, Web and Android builds; unsupported actions
+remain disabled on older apps.
+
+Screen gestures are bound to the displayed capture, expire after 30 seconds,
+and cannot reuse a dispatched frame. Rotation invalidates the gesture. A stale
+capture remains viewable but requires a fresh capture before further control.
+
 ## Pause, disconnect and revoke
 
 Use **Pause Nexus sync** or the notification's Pause action before entering sensitive information. Use the app's disconnect/unpair flow to remove local pairing. Revoke/delete or rotate the device credential in Console to stop server authorization. After revocation, verify the device stops receiving new commands. Disable Accessibility when you no longer want device control. A command already dispatched may have executed; revocation does not roll back its effects.
@@ -101,7 +137,7 @@ See [PRIVACY.md](PRIVACY.md), [SECURITY.md](SECURITY.md), [constraints](docs/CON
 
 ## License and contributions
 
-Nexus-authored source uses [Apache License 2.0 (modified)](LICENSE). Preserve [NOTICE](NOTICE); ZXing and other dependencies keep their own licenses. Bundled scanner notices and the unmodified Apache-2.0 license are included in [the APK assets](app/src/main/assets/third_party_scanner.txt). See [CONTRIBUTING.md](CONTRIBUTING.md). This repository does not contain the Nexus Cloud implementation or grant access to privately distributed Cloud packages.
+Nexus-authored source uses [Apache License 2.0 (modified)](LICENSE). Preserve [NOTICE](NOTICE); ZXing, WebRTC and other dependencies keep their own licenses. The APK includes [scanner notices](app/src/main/assets/third_party_scanner.txt) and [WebRTC component notices](app/src/main/assets/third_party_webrtc.txt). See [CONTRIBUTING.md](CONTRIBUTING.md). This repository does not contain the Nexus Cloud implementation or grant access to privately distributed Cloud packages.
 
 ### Licensing conditions
 

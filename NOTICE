@@ -17,6 +17,12 @@ These components retain the unmodified Apache License 2.0. Nexus additional
 conditions do not apply to them. Their notice and complete license text are
 included in app/src/main/assets/third_party_scanner.txt and in the APK.
 
+WebRTC Android io.github.webrtc-sdk:android:150.7871.01 is included for explicit
+screen-sharing sessions. WebRTC and its compiled third-party components retain
+their upstream licenses. The full upstream compilation notice is included in
+app/src/main/assets/third_party_webrtc.txt and in the APK; Nexus additional
+licensing conditions do not apply to these components.
+
 Gradle Wrapper
 --------------
 The gradlew / gradlew.bat launcher scripts retain their original authors'

@@ -75,6 +75,7 @@ dependencies {
     // Bundled camera decoder: no Play services or first-use module download.
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.5.4")
+    implementation("io.github.webrtc-sdk:android:150.7871.01")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20250517")

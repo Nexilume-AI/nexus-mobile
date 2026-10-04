@@ -97,4 +97,9 @@
     <string name="home_status_pair">Re-pair</string>
     <string name="home_status_paused">Paused</string>
     <string name="home_status_connecting">Connecting</string>
+    <string name="video_request">Screen sharing requested</string>
+    <string name="video_consent">Share your screen with your Nexus browser. No audio or recording.</string>
+    <string name="video_share">Share screen</string>
+    <string name="video_stop">Stop sharing</string>
+    <string name="video_sharing">Your screen is being shared</string>
 </resources>

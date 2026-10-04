@@ -22,15 +22,25 @@ class NexusApiClient(
             "{}",
         )
 
+    fun videoPoll(config: MobileConfig, sessionId: String? = null, after: Int = 0): MobileApiResponse =
+        post("${config.baseUrl}/api/v1/mobile-devices/${config.deviceId}/device/video/", config.token,
+            JSONObject().put("session_id", sessionId).put("after", after).toString())
+
+    fun videoSignal(config: MobileConfig, sessionId: String, body: JSONObject): MobileApiResponse =
+        post("${config.baseUrl}/api/v1/mobile-video/$sessionId/device/", config.token, body.toString())
+
     fun reportResult(
         config: MobileConfig,
         commandId: String,
         result: CommandExecutionResult,
     ): MobileApiResponse =
+        reportResultBody(config, commandId, NexusJson.encodeResult(result))
+
+    fun reportResultBody(config: MobileConfig, commandId: String, body: String): MobileApiResponse =
         post(
             "${config.baseUrl}/api/v1/mobile-commands/$commandId/device/result/",
             config.token,
-            NexusJson.encodeResult(result),
+            body,
         )
 
     fun disconnect(config: MobileConfig, observation: MobileObservation): MobileApiResponse =

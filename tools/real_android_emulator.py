@@ -10,6 +10,7 @@ import argparse
 import base64
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -123,7 +124,13 @@ def observe_until(adb: str, serial: str, text: str, *, timeout: float = 10.0) ->
     attempt = 0
     while time.monotonic() < deadline:
         attempt += 1
-        last = command(adb, serial, f"observe-{attempt}-{time.time_ns()}", "observe")
+        try:
+            last = command(adb, serial, f"observe-{attempt}-{time.time_ns()}", "observe")
+        except RuntimeError as error:
+            if "ACCESSIBILITY_UNAVAILABLE" not in str(error):
+                raise
+            time.sleep(0.2)
+            continue
         if any(
             text.casefold() in str(node.get("text") or "").casefold()
             or text.casefold() in str(node.get("description") or "").casefold()
@@ -148,13 +155,42 @@ def assert_exact_ui_text(adb: str, serial: str, expected: str) -> None:
         raise RuntimeError(f"ANDROID_UI_TEXT_MISMATCH: {expected}")
 
 
+def target_center(adb: str, serial: str, description: str) -> tuple[float, float]:
+    run(adb, serial, "shell", "uiautomator", "dump", "/sdcard/nexus-mobile-e2e.xml")
+    document = run(adb, serial, "exec-out", "cat", "/sdcard/nexus-mobile-e2e.xml").stdout
+    for node in ET.fromstring(document).iter("node"):
+        if node.get("content-desc") == description:
+            bounds = [int(value) for value in re.findall(r"\d+", node.get("bounds", ""))]
+            if len(bounds) == 4:
+                return (bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2
+    raise RuntimeError(f"ANDROID_TARGET_MISSING: {description}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--adb", default="")
     parser.add_argument("--serial", default="")
     parser.add_argument("--apk", default=str(ROOT / "app/build/outputs/apk/debug/app-debug.apk"))
     parser.add_argument("--install", action="store_true")
+    parser.add_argument("--cloud-video", action="store_true", help="Real WebRTC acceptance against the existing Cloud and frontend")
+    parser.add_argument("--cloud-mobile-sdk", action="store_true", help="Real SDK Run delegate actions against the existing Cloud and Android emulator")
+    parser.add_argument("--video-nat", action="store_true", help="Use the existing managed TURN in an isolated Docker NAT topology, restoring it afterwards")
+    parser.add_argument("--web-url", default="http://127.0.0.1:5173")
+    parser.add_argument("--video-report", default="")
+    parser.add_argument("--headless", action="store_true")
     args = parser.parse_args()
+    if args.cloud_video or args.cloud_mobile_sdk:
+        from mobile_video_acceptance import acceptance
+        from contextlib import nullcontext
+        from mobile_video_nat import managed_nat
+        with managed_nat() if args.video_nat else nullcontext(None) as network:
+            result = acceptance(serial=emulator_serial(find_adb(args.adb), args.serial), apk=args.apk,
+                web_url=args.web_url, report=args.video_report or None, headed=not args.headless, network=network,
+                sdk_actions_only=args.cloud_mobile_sdk)
+        print(json.dumps(result, ensure_ascii=False))
+        return 0
+    original_services: str | None = None
+    original_enabled: str | None = None
     try:
         adb = find_adb(args.adb)
         serial = emulator_serial(adb, args.serial)
@@ -165,6 +201,9 @@ def main() -> int:
             run(adb, serial, "install", "-r", str(apk))
         if "package:" not in run(adb, serial, "shell", "pm", "path", PACKAGE).stdout:
             raise RuntimeError("NEXUS_MOBILE_DEBUG_REQUIRED: install with --install")
+
+        original_services = run(adb, serial, "shell", "settings", "get", "secure", "enabled_accessibility_services").stdout.strip()
+        original_enabled = run(adb, serial, "shell", "settings", "get", "secure", "accessibility_enabled").stdout.strip()
 
         run(adb, serial, "shell", "am", "force-stop", PACKAGE)
         run(adb, serial, "shell", "am", "start", "-n", f"{PACKAGE}/.MainActivity")
@@ -215,6 +254,20 @@ def main() -> int:
         if int(capture.get("screenshot_bytes") or 0) <= 100:
             raise RuntimeError("ANDROID_SCREENSHOT_INVALID: empty image")
 
+        if int(capture.get("screen_width") or 0) <= 0 or int(capture.get("screen_height") or 0) <= 0:
+            raise RuntimeError("ANDROID_SCREEN_CONTRACT_INVALID: physical dimensions missing")
+        # Close the keyboard before locating the native control in screen pixels.
+        command(adb, serial, "close-keyboard", "press_back")
+        x, y = target_center(adb, serial, "Apply")
+        command(adb, serial, "long-press", "long_press", x=x, y=y,
+                coordinate_space="pixels", duration_ms=750)
+        observe_until(adb, serial, "Long press received")
+        command(adb, serial, "coordinate-tap", "tap_coordinates", x=x, y=y,
+                coordinate_space="pixels")
+        # Accessibility observations deliberately redact timestamp-like identifiers.
+        observe_until(adb, serial, "Saved: Nexus中文🧪-")
+        assert_exact_ui_text(adb, serial, f"Saved: {marker}")
+
         command(
             adb,
             serial,
@@ -227,6 +280,13 @@ def main() -> int:
             duration_ms=350,
         )
         command(adb, serial, "back", "press_back")
+        command(adb, serial, "home", "press_home")
+        launcher = command(adb, serial, "observe-home", "observe")
+        if launcher.get("packageName") == PACKAGE:
+            raise RuntimeError("ANDROID_HOME_FAILED: Nexus is still the active window")
+        command(adb, serial, "recents", "press_recents")
+        command(adb, serial, "close-recents", "press_back")
+        run(adb, serial, "shell", "am", "start", "-n", f"{PACKAGE}/.MainActivity")
         print(
             json.dumps(
                 {
@@ -235,6 +295,8 @@ def main() -> int:
                     "android": run(adb, serial, "shell", "getprop", "ro.build.version.release").stdout.strip(),
                     "marker": marker,
                     "nodes": len(nodes),
+                    "system_actions": ["press_home", "press_recents"],
+                    "screen_actions": ["tap_coordinates", "swipe", "long_press"],
                     "screenshot": {
                         "width": capture["width"],
                         "height": capture["height"],
@@ -248,6 +310,12 @@ def main() -> int:
     except (RuntimeError, subprocess.CalledProcessError, UnicodeError, json.JSONDecodeError) as error:
         print(str(error), file=sys.stderr)
         return 1
+    finally:
+        if original_services is not None and original_enabled is not None:
+            for key, value in (("enabled_accessibility_services", original_services),
+                               ("accessibility_enabled", original_enabled)):
+                operation = ("delete", "secure", key) if value in ("", "null") else ("put", "secure", key, value)
+                run(adb, serial, "shell", "settings", *operation)
 
 
 if __name__ == "__main__":

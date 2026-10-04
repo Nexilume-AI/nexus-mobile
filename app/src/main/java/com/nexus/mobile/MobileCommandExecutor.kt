@@ -11,6 +11,16 @@ object MobileCommandExecutor {
         val service = NexusAccessibilityServiceHolder.service
             ?: return failure("ACCESSIBILITY_UNAVAILABLE", "Enable Nexus Mobile Control before running actions.")
         return runCatching {
+            if (command.arguments.containsKey("video_session_id") &&
+                !MobileVideoSharing.matchesSession(command.arguments["video_session_id"] as? String)) {
+                return failure("VIDEO_SESSION_LOST", "Screen sharing stopped. Start live video again before controlling the phone.")
+            }
+            if (command.arguments.containsKey("screen_frame_id") || command.arguments.containsKey("video_session_id")) {
+                val expected = command.arguments["expected_screen"] as? Map<*, *>
+                if (expected == null || !service.matchesScreen(expected)) {
+                    return failure("SCREEN_CHANGED", "The phone screen changed. Capture a fresh screen and retry.")
+                }
+            }
             when (command.action) {
                 "observe" -> {
                     val observation = service.observeBlocking()
@@ -29,6 +39,9 @@ object MobileCommandExecutor {
                                 "content_type" to capture.contentType,
                                 "width" to capture.width,
                                 "height" to capture.height,
+                                "screen_width" to capture.screenWidth,
+                                "screen_height" to capture.screenHeight,
+                                "rotation" to capture.rotation,
                             ),
                         )
                     } else {
@@ -85,6 +98,15 @@ object MobileCommandExecutor {
                     service.pressBackBlocking(),
                     "GLOBAL_ACTION_FAILED",
                     "Android rejected the Back action.",
+                )
+                "press_home" -> booleanResult(service.pressHomeBlocking(), "GLOBAL_ACTION_FAILED", "Android rejected the Home action.")
+                "press_recents" -> booleanResult(service.pressRecentsBlocking(), "GLOBAL_ACTION_FAILED", "Android rejected the Recent apps action.")
+                "long_press" -> booleanResult(
+                    service.longPressBlocking(
+                        if (command.coordinateSpace() == "pixels") command.nonNegativeFloatArgument("x") else command.normalizedFloatArgument("x"),
+                        if (command.coordinateSpace() == "pixels") command.nonNegativeFloatArgument("y") else command.normalizedFloatArgument("y"),
+                        command.coordinateSpace() == "pixels", command.longArgument("duration_ms", 750),
+                    ), "GESTURE_FAILED", "Android did not complete the long press.",
                 )
                 "open_app" -> booleanResult(
                     openApp(context, command.stringArgument("package")),

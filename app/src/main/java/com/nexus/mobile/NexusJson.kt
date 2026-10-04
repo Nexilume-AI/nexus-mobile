@@ -20,7 +20,10 @@ object NexusJson {
                 .put("accessibility", accessibilityReady)
                 .put("screen_observation", accessibilityReady)
                 .put("screenshot", accessibilityReady && sdkVersion >= 30)
-                .put("gestures", accessibilityReady),
+                .put("gestures", accessibilityReady)
+                .put("screen_control", 1)
+                .put("live_video", 1)
+                .put("supported_actions", JSONArray(MobileControlContract.supportedActions(sdkVersion))),
         )
         .put(
             "metadata",

@@ -1,17 +1,20 @@
 """Disposable Android AVD helpers for the hosted-Agent live scenario.
 
-The helper uses the real Nexus Mobile pairing deep link and Android UI. It does
-not invoke the debug command receiver, write pairing preferences, or bypass the
-device heartbeat / command-poll protocol.
+The helper uses the real Nexus Mobile pairing deep link and Android UI. It
+does not write pairing preferences or bypass the device heartbeat / command-poll
+protocol. Video acceptance can opt into read-only debug UI inspection to avoid
+UIAutomator suppressing Accessibility; device actions still use the real protocol.
 """
 
 from __future__ import annotations
 
 import os
+import json
 import re
 import subprocess
 import time
 import urllib.parse
+import uuid
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
@@ -231,9 +234,9 @@ class AndroidAVD:
                 f"{PACKAGE}/.MainActivity",
             )
             try:
-                self.wait_for_text_recovering_system_ui(
-                    "Confirm Nexus pairing", timeout=30
-                )
+                self.wait_for_node(lambda item: any(value.casefold() in
+                    ((item.get("text") or "") + " " + (item.get("content-desc") or "")).casefold()
+                    for value in ("Pair with this server?", "Confirm Nexus pairing")), timeout=30)
                 break
             except RuntimeError:
                 if attempt == 2:
@@ -246,7 +249,9 @@ class AndroidAVD:
                 time.sleep(2)
         for attempt in range(5):
             try:
-                self.tap_text("Confirm and connect", timeout=3)
+                confirmation = self.wait_for_node(lambda item: (item.get("text") or "").casefold()
+                    in {"pair and connect", "confirm and connect"}, timeout=3)
+                self._tap_node(confirmation, "Pair and connect")
             except RuntimeError:
                 if attempt == 4:
                     raise
@@ -277,7 +282,7 @@ class AndroidAVD:
                 self.wait_for_node(
                     lambda item: any(
                         value in ((item.get("text") or "") + " " + (item.get("content-desc") or ""))
-                        for value in ("Pairing confirmed", "Connection")
+                        for value in ("Pairing confirmed", "Paired. Finish setup below.", "Connection")
                     ),
                     timeout=5,
                 )
@@ -324,6 +329,16 @@ class AndroidAVD:
         raise RuntimeError(f"ANDROID_UI_TIMEOUT: {value}")
 
     def dump_ui(self) -> ET.Element:
+        if getattr(self, "preserve_accessibility", False):
+            nonce = uuid.uuid4().hex
+            self.adb_run("shell", "am", "broadcast", "-n", f"{PACKAGE}/.MobileE2ECommandReceiver",
+                "--es", "command", "inspect_ui", "--es", "command_id", nonce)
+            raw = self.adb_run("shell", "run-as", PACKAGE, "cat", "files/mobile-e2e-result.json").stdout
+            self.adb_run("shell", "run-as", PACKAGE, "rm", "files/mobile-e2e-result.json")
+            payload = json.loads(raw)
+            if payload.get("id") != nonce:
+                raise RuntimeError("ANDROID_UI_INSPECTION_CONFLICT")
+            return ET.fromstring(payload["result"]["xml"])
         self.adb_run("shell", "uiautomator", "dump", "/sdcard/nexus-hosted-mobile.xml")
         raw = self.adb_run("exec-out", "cat", "/sdcard/nexus-hosted-mobile.xml").stdout
         return ET.fromstring(raw)
@@ -348,7 +363,7 @@ class AndroidAVD:
         # visible viewport. Treat those as unavailable so the caller can
         # scroll before tapping instead of sending a no-op coordinate beyond
         # the real display.
-        if not (0 <= x < width and 0 <= y < height):
+        if right <= left or bottom <= top or not (0 <= x < width and 0 <= y < height):
             raise RuntimeError(
                 f"ANDROID_NODE_OFFSCREEN: {value} at ({x},{y}) outside {width}x{height}"
             )

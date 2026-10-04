@@ -41,6 +41,7 @@ class NexusMobileService : Service() {
 
     override fun onDestroy() {
         running.set(false)
+        MobileVideoSharing.stop(this)
         super.onDestroy()
     }
 
@@ -50,6 +51,7 @@ class NexusMobileService : Service() {
         var lastHeartbeatAt = 0L
         var lastReady: Boolean? = null
         var retryDelayMs = COMMAND_POLL_INTERVAL_MS
+        var pendingResult: MobileResultOutbox.Pending? = null
         while (running.get()) {
             val config = MobileConfigStore.load(this)
             if (!config.isConfigured()) {
@@ -66,6 +68,16 @@ class NexusMobileService : Service() {
             val ready = accessibility != null
             val observation = accessibility?.observeBlocking() ?: NexusAccessibilityService.lastObservation
             try {
+                if (pendingResult?.scope != MobileResultOutbox.scope(config)) pendingResult = null
+                pendingResult = pendingResult ?: MobileResultOutbox.load(this, config)
+                pendingResult?.let { pending ->
+                    // Persist before sending. On disk or transport failure retain
+                    // the in-memory result too, and do not execute another action.
+                    MobileResultOutbox.save(this, config, pending)
+                    if (!handleResponse(apiClient.reportResultBody(config, pending.commandId, pending.body))) return
+                    MobileResultOutbox.acknowledge(this, config, pending)
+                    pendingResult = null
+                }
                 val now = System.currentTimeMillis()
                 if (now - lastHeartbeatAt >= HEARTBEAT_INTERVAL_MS || lastReady != ready) {
                     if (ready) {
@@ -104,11 +116,19 @@ class NexusMobileService : Service() {
                     continue
                 }
                 if (!handleResponse(next)) return
+                val video = apiClient.videoPoll(config)
+                if (!handleResponse(video)) return
+                MobileVideoSharing.updatePending(this, video.data?.optJSONObject("session"))
                 val command = NexusJson.parseCommand(next)
                 if (command != null) {
                     val result = MobileCommandExecutor.execute(this, command)
-                    val reported = apiClient.reportResult(config, command.id, result)
+                    val pending = MobileResultOutbox.pending(config, command.id, result)
+                    pendingResult = pending
+                    MobileResultOutbox.save(this, config, pending)
+                    val reported = apiClient.reportResultBody(config, pending.commandId, pending.body)
                     if (!handleResponse(reported)) return
+                    MobileResultOutbox.acknowledge(this, config, pending)
+                    pendingResult = null
                 }
                 updateState(SyncState.ONLINE, "Protected actions are ready.", System.currentTimeMillis())
                 retryDelayMs = COMMAND_POLL_INTERVAL_MS
@@ -146,6 +166,7 @@ class NexusMobileService : Service() {
     }
 
     private fun disconnect(clearPairing: Boolean) {
+        MobileVideoSharing.stop(this)
         if (!running.compareAndSet(true, false)) running.set(false)
         val config = MobileConfigStore.load(this)
         thread(name = "nexus-mobile-disconnect") {
@@ -187,6 +208,7 @@ class NexusMobileService : Service() {
     }
 
     private fun stopServiceLoop() {
+        MobileVideoSharing.stop(this)
         running.set(false)
         stopForeground(STOP_FOREGROUND_DETACH)
         stopSelf()

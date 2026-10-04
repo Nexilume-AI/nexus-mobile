@@ -42,6 +42,11 @@ This is an opt-in **Beta**, not a production/device-compatibility certification.
 
 ## Quick start
 
+Current `main` source also supports consented WebRTC screen sharing and bounded
+screen actions. This source update is **not** a new APK release; the beta.2
+download above remains the previous artifact. Use compatible Cloud/Web and
+Android source versions. See [Live video](docs/LIVE_VIDEO.md).
+
 **Requirements:** Android 8.0+, a compatible Nexus Cloud, and a camera with Camera permission for the built-in scanner. One-time screenshots require Android 11+. Physical Google-free device acceptance remains pending.
 
 Build with JDK 17 and Android SDK platform 36:

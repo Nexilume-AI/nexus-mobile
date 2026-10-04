@@ -10,6 +10,8 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import java.io.File
+import org.json.JSONObject
 
 /** Deterministic Accessibility surface included only in debug builds. */
 class MobileE2EActivity : Activity() {
@@ -39,15 +41,30 @@ class MobileE2EActivity : Activity() {
             isSingleLine = false
             minHeight = dp(56)
             setPadding(dp(12), dp(10), dp(12), dp(10))
-            setText(savedMarker)
+            setText(intent.getStringExtra("paper_marker") ?: savedMarker)
         }
         content.addView(input, margin(top = 28))
 
         content.addView(action("Apply") {
             val value = input.text.toString()
+            // Debug-only effect receipt: independent of Cloud result reporting.
+            // Retain every click, including repeats of the same marker.
+            val sequence = preferences.getLong("apply_sequence", 0L) + 1L
+            check(preferences.edit().putLong("apply_sequence", sequence).commit())
+            File(filesDir, "paper-mobile-effects.jsonl").appendText(
+                JSONObject().put("sequence", sequence).put("marker", value)
+                    .put("at_unix_ms", System.currentTimeMillis()).toString() + "\n",
+                Charsets.UTF_8,
+            )
             preferences.edit().putString("saved_marker", value).apply()
             status.text = if (value.isBlank()) "Saved: empty" else "Saved: $value"
             status.contentDescription = status.text
+        }.apply {
+            setOnLongClickListener {
+                status.text = "Long press received"
+                status.contentDescription = status.text
+                true
+            }
         }, margin(top = 14))
         content.addView(action("Reset") {
             input.setText("")

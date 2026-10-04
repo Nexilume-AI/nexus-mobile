@@ -97,4 +97,9 @@
     <string name="home_status_pair">重新配对</string>
     <string name="home_status_paused">已暂停</string>
     <string name="home_status_connecting">连接中</string>
+    <string name="video_request">收到屏幕分享请求</string>
+    <string name="video_consent">向你的 Nexus 网页分享屏幕。不采集声音，不录像。</string>
+    <string name="video_share">分享屏幕</string>
+    <string name="video_stop">停止分享</string>
+    <string name="video_sharing">正在分享你的屏幕</string>
 </resources>

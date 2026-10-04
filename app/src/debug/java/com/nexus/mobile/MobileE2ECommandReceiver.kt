@@ -4,9 +4,13 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Base64
+import android.util.Xml
+import android.graphics.Rect
+import android.view.accessibility.AccessibilityNodeInfo
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.io.StringWriter
 import kotlin.concurrent.thread
 
 /** ADB-driven command bridge included only in debug APKs. */
@@ -33,6 +37,32 @@ class MobileE2ECommandReceiver : BroadcastReceiver() {
         val action = intent.getStringExtra("command").orEmpty()
         require(id.isNotBlank()) { "command_id is required." }
         require(action.isNotBlank()) { "command is required." }
+        if (action == "inspect_ui") {
+            // Unlike `uiautomator dump`, this does not suppress the real
+            // Accessibility service under test. Release APKs have no receiver.
+            val root = NexusAccessibilityServiceHolder.service?.rootInActiveWindow
+            val buffer = StringWriter()
+            val xml = Xml.newSerializer().apply { setOutput(buffer); startDocument("UTF-8", true); startTag(null, "hierarchy") }
+            var count = 0
+            fun visit(node: AccessibilityNodeInfo, depth: Int) {
+                if (depth > 12 || ++count > 512) return
+                val bounds = Rect(); node.getBoundsInScreen(bounds)
+                xml.startTag(null, "node")
+                xml.attribute(null, "text", PrivacyRedactor.sanitize(node.text?.toString(), node.isPassword))
+                xml.attribute(null, "content-desc", PrivacyRedactor.sanitize(node.contentDescription?.toString(), node.isPassword))
+                xml.attribute(null, "package", node.packageName?.toString().orEmpty())
+                xml.attribute(null, "resource-id", node.viewIdResourceName.orEmpty())
+                xml.attribute(null, "bounds", "[${bounds.left},${bounds.top}][${bounds.right},${bounds.bottom}]")
+                xml.attribute(null, "clickable", node.isClickable.toString())
+                xml.attribute(null, "enabled", node.isEnabled.toString())
+                for (index in 0 until node.childCount) node.getChild(index)?.let { visit(it, depth + 1) }
+                xml.endTag(null, "node")
+            }
+            root?.let { visit(it, 0) }
+            xml.endTag(null, "hierarchy"); xml.endDocument()
+            return JSONObject().put("id", id).put("succeeded", root != null)
+                .put("result", JSONObject().put("xml", buffer.toString()))
+        }
         val arguments = mutableMapOf<String, Any?>()
         intent.extras?.keySet()?.filter { it.startsWith(ARG_PREFIX) }?.forEach { key ->
             arguments[key.removePrefix(ARG_PREFIX)] = intent.extras?.get(key)
