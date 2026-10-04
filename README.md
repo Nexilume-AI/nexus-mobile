@@ -34,11 +34,11 @@ An Android companion for caller-authorized Agent workflows. Pair explicitly, ena
 
 ## Download the Android Beta
 
-[Download Nexus Mobile 0.1.1-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.1/nexus-mobile-0.1.1-beta.1.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.1)
+[Download Nexus Mobile 0.1.1-beta.2 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.2/nexus-mobile-0.1.1-beta.2.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.2)
 
-The linked **0.1.1-beta.1 APK predates the built-in scanner and permission guide** and still requires Google Play services for scanning. Current source bundles ZXing and does not require Google services or a scanner-module download. Build the current source until an updated signed release is published. Review the release notes before enabling Accessibility.
+This signed **0.1.1-beta.2** includes the bundled QR scanner, guided permissions and simplified home screen. Scanning does not require Google Play services or a scanner-module download. Review the release notes before enabling Accessibility.
 
-This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance and upgrade continuity from an earlier signed release have not yet been verified. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
+This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance remains pending; see the release notes for the verified upgrade scope. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
 
 ## Quick start
 
