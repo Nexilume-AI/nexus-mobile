@@ -11,9 +11,9 @@ An Android companion that lets authorized Nexus agents observe and interact with
 
 ## Download the Android Beta
 
-[Download Nexus Mobile 0.1.1-beta.2 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.2/nexus-mobile-0.1.1-beta.2.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.2)
+[Download Nexus Mobile 0.1.2-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.2-beta.1/nexus-mobile-0.1.2-beta.1.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.2-beta.1)
 
-This signed **0.1.1-beta.2** includes the bundled QR scanner, guided permissions and simplified home screen. Scanning does not require Google Play services or a scanner-module download. Review the release notes and outstanding physical-device checks before enabling Accessibility.
+This signed **0.1.2-beta.1** adds consented WebRTC live screen, Home/Recents/long-press actions and reliable result delivery. It retains the bundled Google-independent QR scanner and guided permissions. Live screen needs compatible Cloud/Web; cross-NAT video may require TURN. Review outstanding physical-device checks before enabling Accessibility.
 
 This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance and upgrade continuity from an earlier signed release have not yet been verified. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
 

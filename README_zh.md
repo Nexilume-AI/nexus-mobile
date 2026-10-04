@@ -32,9 +32,9 @@
 
 ## 下载 Android Beta
 
-[下载 Nexus Mobile 0.1.1-beta.2 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.2/nexus-mobile-0.1.1-beta.2.apk) · [发布说明与校验值](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.2)
+[下载 Nexus Mobile 0.1.2-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.2-beta.1/nexus-mobile-0.1.2-beta.1.apk) · [发布说明与校验值](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.2-beta.1)
 
-签名版 **0.1.1-beta.2** 已包含内置扫码、逐步权限引导及简化首页，无需 Google Play services 或额外下载扫码模块。开启无障碍权限前请阅读发布说明。
+签名版 **0.1.2-beta.1** 新增经用户同意的 WebRTC 实时画面、Home/最近任务/长按动作及可靠结果回传，保留无需 Google 服务的内置扫码与权限引导。实时画面需要兼容的 Cloud/Web，跨 NAT 可能需要 TURN。开启无障碍权限前请阅读发布说明。
 
 本版为自愿试用的 **Beta**，不代表通过生产或全部机型认证。真机端到端验收仍待完成，已验证的升级范围见发布说明。已安装的 Debug 版本使用不同签名，不能直接覆盖安装；如需迁移，请先保存需要的数据，再自行决定卸载 Debug 版本。
 

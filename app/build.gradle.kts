@@ -15,8 +15,8 @@ android {
         applicationId = "com.nexus.mobile"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.1.1-beta.2"
+        versionCode = 4
+        versionName = "0.1.2-beta.1"
     }
 
     val signingValues = listOf("NEXUS_MOBILE_KEYSTORE", "NEXUS_MOBILE_STORE_PASSWORD",
