@@ -250,7 +250,7 @@ class NexusMobileService : Service() {
         const val ACTION_STATE_CHANGED = "com.nexus.mobile.STATE_CHANGED"
         private const val ACTION_STOP = "com.nexus.mobile.STOP_SYNC"
         private const val ACTION_UNPAIR = "com.nexus.mobile.UNPAIR"
-        private const val CHANNEL_ID = "nexus_mobile_sync"
+        internal const val CHANNEL_ID = "nexus_mobile_sync"
         private const val NOTIFICATION_ID = 7
         private const val COMMAND_POLL_INTERVAL_MS = 2_000L
         private const val SETUP_POLL_INTERVAL_MS = 5_000L

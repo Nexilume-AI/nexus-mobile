@@ -36,13 +36,13 @@ An Android companion for caller-authorized Agent workflows. Pair explicitly, ena
 
 [Download Nexus Mobile 0.1.1-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.1/nexus-mobile-0.1.1-beta.1.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.1)
 
-The APK is a signed, non-debuggable release build with the Nexus launcher and notification logo. On Android, allow installation from the browser or file manager you use to open it. Review the release notes before enabling Accessibility. Requires Android 8.0+; the pairing scanner requires Google Play services.
+The linked **0.1.1-beta.1 APK predates the built-in scanner and permission guide** and still requires Google Play services for scanning. Current source bundles ZXing and does not require Google services or a scanner-module download. Build the current source until an updated signed release is published. Review the release notes before enabling Accessibility.
 
 This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance and upgrade continuity from an earlier signed release have not yet been verified. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
 
 ## Quick start
 
-**Requirements:** Android 8.0+, a compatible Nexus Cloud, and Google Play services for the scanner flow. One-time screenshots require Android 11+.
+**Requirements:** Android 8.0+, a compatible Nexus Cloud, and a camera with Camera permission for the built-in scanner. One-time screenshots require Android 11+. Physical Google-free device acceptance remains pending.
 
 Build with JDK 17 and Android SDK platform 36:
 
@@ -58,12 +58,14 @@ On Windows use `./gradlew.bat` with the same arguments. Follow [RELEASE.md](RELE
 ## Pair, attach, run
 
 1. In Nexus Console, create a Mobile device and display its pairing QR.
-2. Scan in Nexus Mobile; review the identity and choose **Confirm and connect**.
-3. Enable **Nexus Mobile Control** in Android Accessibility settings.
-4. Allow notifications and start sync. Verify the visible foreground notification and online state in Console.
+2. Tap **Scan pairing QR**, then **Allow camera**. Review the server/device identity and choose **Pair and connect**. Camera frames stay on the phone.
+3. Follow the highlighted **Permissions** step. **Enable device control** explains the Settings path; enable **Nexus Mobile Control** yourself. If Android blocks it, use **Android blocked access?** for restricted-settings guidance.
+4. Notifications are recommended, not required. Permissions stays visible on the home screen; **Later** collapses the guide without hiding its status. Check Connection and Console to confirm the device is online.
 5. Attach the device to a Run and grant only the scopes the Agent needs.
 
 **Success looks like:** the authorized device is online and a supported Agent action returns its result. Pairing is not blanket authorization for every Agent.
+
+The home screen keeps pairing/connection and **Permissions** visible. Use the **⋮** menu for connection details, privacy and removing pairing. Opening Settings does not grant a permission; notification prompts require an explicit action.
 
 ## Privacy by workflow
 

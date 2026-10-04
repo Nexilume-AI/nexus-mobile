@@ -20,8 +20,8 @@ jobs:
         run: |
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;35.0.0"
       - run: sh gradlew testDebugUnitTest lintRelease assembleRelease --no-daemon
-      - name: Test APK verifier
-        run: python3 -m unittest discover -s tools -p test_verify_release.py
+      - name: Test source integration and APK verifier
+        run: python3 -m unittest discover -s tools -p 'test_*.py'
       - name: Inspect unsigned review artifact
         run: python3 tools/verify_release.py --apk app/build/outputs/apk/release/app-release-unsigned.apk --aapt "$ANDROID_HOME/build-tools/35.0.0/aapt"
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a

@@ -2,10 +2,20 @@ Nexus Mobile
 Copyright Nexus contributors
 
 The Apache License 2.0 (modified) grant covers Nexus-authored source only. This
-notice does not relicense dependencies, the Android SDK, Google Play services,
+notice does not relicense dependencies, the Android SDK, ZXing,
 or separately licensed upstream components. Retain their applicable notices
 when distributing source or binaries. The mixed Enterprise repository is not
 included in the Community license grant.
+
+Bundled QR scanner
+------------------
+ZXing Android Embedded 4.3.0 (Journey Mobile, Inc. and contributors)
+https://github.com/journeyapps/zxing-android-embedded/tree/v4.3.0
+ZXing Core 3.5.4 (ZXing authors)
+https://github.com/zxing/zxing/tree/zxing-3.5.4
+These components retain the unmodified Apache License 2.0. Nexus additional
+conditions do not apply to them. Their notice and complete license text are
+included in app/src/main/assets/third_party_scanner.txt and in the APK.
 
 Gradle Wrapper
 --------------

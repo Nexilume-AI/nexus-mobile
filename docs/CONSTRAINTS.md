@@ -15,6 +15,10 @@ control of a user's personal device.
 - Release pairing URLs must use HTTPS. Local HTTP is limited to debug builds and
   recognized local-development hosts.
 - Pairing values must be encrypted at rest with Android Keystore.
+- Pairing QR decoding must be bundled and usable without Google Play services.
+  Camera permission/access is limited to the user-opened scanner; frames and QR
+  payloads must not be saved, uploaded, logged, or exposed through an exported scanner.
+  Do not add paste-link or manual-token entry as a scanner fallback.
 - Nexus Server stores only `token_hash` and `token_prefix`; plaintext tokens are
   returned once during pairing or rotation.
 - Agent/API-key credentials must never be stored in the Android app.

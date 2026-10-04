@@ -34,13 +34,13 @@
 
 [下载 Nexus Mobile 0.1.1-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.1/nexus-mobile-0.1.1-beta.1.apk) · [发布说明与校验值](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.1)
 
-这是带 Nexus 桌面图标和通知 Logo 的已签名、不可调试 Release 构建。在 Android 中为打开 APK 的浏览器或文件管理器允许安装应用；开启无障碍权限前请阅读发布说明。要求 Android 8.0+，扫码配对需要 Google Play services。
+链接中的 **0.1.1-beta.1 APK 尚未包含内置扫码与权限引导**，扫码仍依赖 Google Play services。当前源码已内置 ZXing，无需 Google 服务或额外下载扫码模块；新签名版本发布前，请自行构建当前源码。开启无障碍权限前请阅读发布说明。
 
 本版为自愿试用的 **Beta**，不代表通过生产或全部机型认证。尚未完成真机端到端验收，也没有先前正式签名版本可供升级连续性测试。已安装的 Debug 版本使用不同签名，不能直接覆盖安装；如需迁移，请先保存需要的数据，再自行决定卸载 Debug 版本。
 
 ## 快速开始
 
-需要 Android 8.0+、兼容 Nexus Cloud，以及用于扫码的 Google Play services；单次截图要求 Android 11+。不是 iOS 客户端，也未宣称通过无 Google 服务设备验收。
+需要 Android 8.0+、兼容 Nexus Cloud、摄像头及扫码时的相机权限；单次截图要求 Android 11+。不是 iOS 客户端，真实无 Google 服务设备的验收仍待完成。
 
 使用 JDK 17 与 Android SDK platform 36：
 
@@ -56,12 +56,14 @@ Windows 使用 `./gradlew.bat` 和相同参数。签名及验证见[发布指南
 ## 配对到首次操作
 
 1. 在 Nexus Console 创建 Mobile，显示短期 pairing QR。
-2. 在手机扫码、检查身份并确认连接。
-3. 在 Android 设置开启 **Nexus Mobile Control**。
-4. 允许通知并启动同步，确认 Console 显示在线。
+2. 点击 **扫描配对二维码 → 允许相机**，检查 Cloud/设备身份后选择 **配对并连接**。相机画面只在手机本地处理。
+3. 跟随高亮的 **权限** 步骤；**启用设备控制** 先说明设置路径，再由你开启 **Nexus Mobile Control**。如被 Android 阻止，可打开应用内的限制设置引导。
+4. 通知建议开启，但可跳过。权限在首页默认显示；**稍后** 只收起引导，不隐藏状态。检查连接状态及 Console，确认设备在线。
 5. Attach 到 Agent Run，仅批准该任务需要的权限。
 
 成功标准是：设备在线，且已授权的任务动作返回结果；不是只看到配对成功。
+
+首页保留配对/连接和 **权限**，连接详情、隐私及移除配对位于 **⋮** 菜单。仅打开系统设置不会被视为授权，通知申请也必须由你主动点击。
 
 ## 隐私与文档
 

@@ -6,14 +6,14 @@ An Android companion that lets authorized Nexus agents observe and interact with
 
 - Android 8.0 (API 26) or newer. One-time screenshots require Android 11+.
 - A compatible Nexus Cloud deployment and permission to register a Mobile device.
-- Google Play services for the Google Code Scanner pairing flow. This is not a verified Google-free Android distribution.
+- A camera and Camera permission for the built-in pairing scanner. Current source bundles ZXing and does not require Google Play services or a scanner-module download.
 - To build: JDK 17, Android SDK platform 36, and the checked-in Gradle wrapper. AGP 8.7.3 currently uses an explicit compileSdk 36 compatibility-warning suppression; this is tracked in RELEASE.md rather than treated as broad device certification.
 
 ## Download the Android Beta
 
 [Download Nexus Mobile 0.1.1-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.1-beta.1/nexus-mobile-0.1.1-beta.1.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.1-beta.1)
 
-The APK is a signed, non-debuggable release build with the Nexus launcher and notification logo. On Android, allow installation from the browser or file manager you use to open it. Review the release notes before enabling Accessibility. Requires Android 8.0+; the pairing scanner requires Google Play services.
+The linked **0.1.1-beta.1 release predates the built-in scanner** and still requires Google Play services for scanning. Build the current source for Google-independent scanning until an updated signed release is published. The linked APK is signed and non-debuggable; review its release notes before enabling Accessibility.
 
 This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance and upgrade continuity from an earlier signed release have not yet been verified. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
 
@@ -40,12 +40,38 @@ For a development APK use `assembleDebug`, then `adb install -r app/build/output
 ## Pair and connect
 
 1. In Nexus Console create a Mobile device and display its short-lived pairing QR.
-2. Open Nexus Mobile, scan the QR, review the server/device identity, and select **Confirm and connect**.
-3. Enable **Nexus Mobile Control** in Android Accessibility settings.
-4. Allow notifications and start sync. Check that the foreground notification remains visible and Console reports the device online.
+   Cloud provides the server address automatically; no URL entry is needed on the phone.
+   Deployment requirements and configuration recovery: [Cloud pairing address](docs/CLOUD_PAIRING_ADDRESS.md).
+2. Open Nexus Mobile, tap **Scan pairing QR**, review the on-screen explanation,
+   then tap the highlighted **Allow camera** button to request Camera permission.
+   Scanning and decoding run inside the app; camera frames are neither saved nor uploaded.
+   Review the server/device identity, then select **Pair and connect**.
+   There is no paste-link or manual-token entry. Canceling does not change an existing pairing.
+3. Follow the highlighted **Permissions** step. **Enable device control**
+   displays an in-app, numbered Settings path before you open Android settings.
+   Enable **Nexus Mobile Control** yourself after reviewing the system prompt.
+   If Android refuses access, use **Android blocked access?** in the app.
+   **Open App info** goes directly to Nexus Mobile; where available, select
+   **⋮ → Allow restricted settings**, review the system confirmation, then return
+   and enable Accessibility. The app rechecks the real permission on return;
+   opening settings alone never marks setup complete. Menu names vary by device,
+   and a managed phone may require its administrator's approval. Only grant this
+   access to a trusted APK. [Android restricted-settings guidance](https://support.google.com/android/answer/12623953).
+4. Returning to the app checks the actual permission before advancing to
+   **Connection notifications**. Notifications are recommended but can be skipped;
+   a skipped permission stays visibly disabled, not marked granted. **Later**
+   collapses the guide; **Continue setup** resumes it.
+   Check Connection status and Console to confirm the device is online. Permission
+   readiness is not a successful Cloud connection. Starting sync or confirming
+   pairing never automatically opens a notification permission prompt.
 5. Attach the device to an Agent Run and grant only the Mobile scopes needed for that Run.
 
 Release pairing requires HTTPS with a certificate trusted by Android. Debug permits local-development HTTP hosts. Pairing credentials are encrypted using Android Keystore; they are not Agent API keys. Pairing alone does not authorize every Agent to control the phone.
+
+The home screen always shows connection status and **Permissions**, including when
+permissions are already granted. Missing permissions have a highlighted next step.
+Use **⋮ → Connection details**, **Privacy** or **Remove pairing** for less frequent actions. **Pause sync**
+stays available while connected, including in the menu when control is not ready.
 
 ## Pause, disconnect and revoke
 
@@ -62,9 +88,12 @@ See [PRIVACY.md](PRIVACY.md), [SECURITY.md](SECURITY.md), [constraints](docs/CON
 | Problem | Check |
 | --- | --- |
 | Build cannot find Java or Android SDK | JAVA_HOME / ANDROID_HOME and JDK 17; do not commit local.properties |
-| QR scanner is unavailable | Google Play services availability and the scanner module download |
+| Camera permission denied | Allow Camera using the scanner's permission button; if Android will not prompt again, open app permissions from that screen |
+| Camera is unavailable | Close other apps using it, check the system Camera access switch, then select Retry camera |
+| Invalid or expired QR | Generate a fresh Mobile pairing QR in Nexus Console; the scanner remains open for another attempt |
 | Pairing rejected | QR expiry, server identity and trusted HTTPS certificate |
 | setup_required | Accessibility service is not active |
+| Android denies Accessibility access | Use the in-app restricted-settings guide and App info shortcut; if the option is missing or still blocked, check manufacturer or device-management restrictions |
 | No commands arrive | Sync status, Cloud availability, device authorization and Run scopes |
 | Screenshot denied | Android version, secure surfaces and sensitive screen content |
 | Background sync stops | Foreground notification, OS background restrictions and battery policy |
@@ -72,7 +101,7 @@ See [PRIVACY.md](PRIVACY.md), [SECURITY.md](SECURITY.md), [constraints](docs/CON
 
 ## License and contributions
 
-Nexus-authored source uses [Apache License 2.0 (modified)](LICENSE). Preserve [NOTICE](NOTICE); Google components and other dependencies keep their own licenses. See [CONTRIBUTING.md](CONTRIBUTING.md). This repository does not contain the Nexus Cloud implementation or grant access to privately distributed Cloud packages.
+Nexus-authored source uses [Apache License 2.0 (modified)](LICENSE). Preserve [NOTICE](NOTICE); ZXing and other dependencies keep their own licenses. Bundled scanner notices and the unmodified Apache-2.0 license are included in [the APK assets](app/src/main/assets/third_party_scanner.txt). See [CONTRIBUTING.md](CONTRIBUTING.md). This repository does not contain the Nexus Cloud implementation or grant access to privately distributed Cloud packages.
 
 ### Licensing conditions
 

@@ -72,8 +72,10 @@ kotlin {
 
 dependencies {
     implementation("androidx.core:core:1.13.1")
-    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
+    // Bundled camera decoder: no Play services or first-use module download.
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.4")
 
     testImplementation("junit:junit:4.13.2")
-    testImplementation("org.json:json:20260814")
+    testImplementation("org.json:json:20250517")
 }

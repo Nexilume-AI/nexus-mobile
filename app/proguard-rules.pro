@@ -1,1 +1,1 @@
-# Nexus Mobile uses only platform APIs and Google Code Scanner.
+# Nexus Mobile uses platform APIs and bundled ZXing; the scanner supplies consumer rules.
