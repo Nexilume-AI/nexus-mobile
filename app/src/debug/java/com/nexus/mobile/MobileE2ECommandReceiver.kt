@@ -37,6 +37,12 @@ class MobileE2ECommandReceiver : BroadcastReceiver() {
         val action = intent.getStringExtra("command").orEmpty()
         require(id.isNotBlank()) { "command_id is required." }
         require(action.isNotBlank()) { "command is required." }
+        if (action == "inspect_control") {
+            val control = AccessibilityControlState.read(context)
+            return JSONObject().put("id", id).put("succeeded", true).put("result", JSONObject()
+                .put("permission_granted", control.permissionGranted).put("connected", control.connected)
+                .put("state", control.syncState.persistedValue))
+        }
         if (action == "inspect_ui") {
             // Unlike `uiautomator dump`, this does not suppress the real
             // Accessibility service under test. Release APKs have no receiver.

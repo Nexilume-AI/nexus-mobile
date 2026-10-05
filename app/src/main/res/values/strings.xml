@@ -91,8 +91,12 @@
     <string name="home_offline_message">Cloud is unreachable. Check your connection.</string>
     <string name="home_pairing_expired_message">Pairing is no longer valid. Scan a new QR.</string>
     <string name="home_paused_message">No new actions while paused.</string>
+    <string name="home_background_timeout_message">Android paused background sync after its time limit. Open Nexus Mobile and tap Start sync to reconnect. Pairing is kept.</string>
     <string name="home_status_online">Online</string>
     <string name="home_status_setup">Setup needed</string>
+    <string name="accessibility_control_disconnected">Control disconnected</string>
+    <string name="accessibility_control_recovery">Permission is already granted, but Android has not connected the control service. In Accessibility settings, turn Nexus Mobile Control off, then on, and return here. Pairing is kept; screen sharing permission is not required.</string>
+    <string name="accessibility_reconnect_control">Reconnect control</string>
     <string name="home_status_offline">Offline</string>
     <string name="home_status_pair">Re-pair</string>
     <string name="home_status_paused">Paused</string>

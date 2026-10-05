@@ -10,6 +10,7 @@ object NexusJson {
         appVersion: String,
         sdkVersion: Int,
         deviceModel: String,
+        accessibilityPermissionGranted: Boolean = accessibilityReady,
     ): String = JSONObject()
         .put("online_status", if (accessibilityReady) "online" else "offline")
         .put("current_package", observation.packageName)
@@ -18,6 +19,7 @@ object NexusJson {
             "capabilities",
             JSONObject()
                 .put("accessibility", accessibilityReady)
+                .put("accessibility_permission_granted", accessibilityPermissionGranted || accessibilityReady)
                 .put("screen_observation", accessibilityReady)
                 .put("screenshot", accessibilityReady && sdkVersion >= 30)
                 .put("gestures", accessibilityReady)

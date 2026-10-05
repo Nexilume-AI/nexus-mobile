@@ -15,14 +15,23 @@ android {
         applicationId = "com.nexus.mobile"
         minSdk = 26
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.1.2-beta.1"
+        versionCode = 5
+        versionName = "0.1.2-beta.2"
+        testInstrumentationRunner = "com.nexus.mobile.ReleaseSmokeInstrumentation"
     }
+
+    // Opt-in emulator tests exercise the actual minified release, never a debug
+    // substitute. Test APK/signing only; no test component enters the shipped APK.
+    val releaseSmoke = providers.gradleProperty("nexusMobileReleaseSmoke").orNull == "true"
+    if (releaseSmoke) testBuildType = "release"
 
     val signingValues = listOf("NEXUS_MOBILE_KEYSTORE", "NEXUS_MOBILE_STORE_PASSWORD",
         "NEXUS_MOBILE_KEY_ALIAS", "NEXUS_MOBILE_KEY_PASSWORD").map { System.getenv(it).orEmpty() }
     require(signingValues.all { it.isEmpty() } || signingValues.all { it.isNotEmpty() }) {
         "Release signing requires all four NEXUS_MOBILE signing environment variables."
+    }
+    require(!releaseSmoke || signingValues.all { it.isEmpty() }) {
+        "Release smoke tests must not use production signing credentials."
     }
     if (signingValues.all { it.isNotEmpty() }) {
         signingConfigs.create("release") {
@@ -38,6 +47,7 @@ android {
             manifestPlaceholders["usesCleartextTraffic"] = "true"
         }
         release {
+            if (releaseSmoke) signingConfig = signingConfigs.getByName("debug")
             if (signingValues.all { it.isNotEmpty() }) {
                 signingConfig = signingConfigs.getByName("release")
             }

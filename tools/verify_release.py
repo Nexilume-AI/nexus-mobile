@@ -4,8 +4,48 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import struct
 import subprocess
 import zipfile
+
+
+def dex_class_definitions(data):
+    """Read class_defs, not string matches which can survive a stripped class."""
+    if len(data) < 112 or not data.startswith(b'dex\n'):
+        raise ValueError('Invalid DEX in release APK')
+    def integer(offset):
+        if offset < 0 or offset + 4 > len(data):
+            raise ValueError('Invalid DEX table bounds')
+        return struct.unpack_from('<I', data, offset)[0]
+    strings, string_offset = integer(56), integer(60)
+    types, type_offset = integer(64), integer(68)
+    count, class_offset = integer(96), integer(100)
+    if class_offset + count * 32 > len(data):
+        raise ValueError('Invalid DEX class definitions')
+    names = set()
+    for index in range(count):
+        type_index = integer(class_offset + index * 32)
+        if type_index >= types:
+            raise ValueError('Invalid DEX class type')
+        string_index = integer(type_offset + type_index * 4)
+        if string_index >= strings:
+            raise ValueError('Invalid DEX class name')
+        offset = integer(string_offset + string_index * 4)
+        # Skip the ULEB128 UTF-16 length. JNI descriptors here are ASCII.
+        for _ in range(5):
+            if offset >= len(data):
+                raise ValueError('Invalid DEX string')
+            value = data[offset]
+            offset += 1
+            if value < 128:
+                break
+        else:
+            raise ValueError('Invalid DEX string length')
+        end = data.find(b'\0', offset)
+        if end < 0:
+            raise ValueError('Unterminated DEX class name')
+        names.add(data[offset:end].decode('ascii', errors='replace'))
+    return names
 
 def verify(apk, aapt, apksigner=None, require_signed=False, expected_certificate=None):
     if expected_certificate and not apksigner: raise ValueError('--expected-certificate needs --apksigner')
@@ -33,8 +73,17 @@ def verify(apk, aapt, apksigner=None, require_signed=False, expected_certificate
             paths = re.findall(r':'+re.escape(icon)+r':[^\n]*\n\s*\(string8?\) "([^"]+)"', resources)
             if not paths or any(path not in archive.namelist() for path in paths):
                 raise ValueError('Missing Nexus branding resource: '+icon)
+        defined = set()
+        for name in archive.namelist():
+            if re.fullmatch(r'classes(?:[2-9]|[1-9][0-9]+)?\.dex', name):
+                defined.update(dex_class_definitions(archive.read(name)))
+        required = {'Lorg/jni_zero/JniZero;', 'Lorg/jni_zero/CommonApis;',
+                    'Lorg/webrtc/PeerConnectionFactory;'}
+        missing = required - defined
+        if missing:
+            raise ValueError('Missing WebRTC JNI class definitions: '+', '.join(sorted(missing)))
     result={'apk':apk.name,'sha256':hashlib.sha256(apk.read_bytes()).hexdigest(),
-            'release_manifest_checked':True,'signature_verified':False}
+            'release_manifest_checked':True,'webrtc_jni_checked':True,'signature_verified':False}
     if require_signed and not apksigner: raise ValueError('--require-signed needs --apksigner')
     if apksigner:
         checked=subprocess.run([str(apksigner),'verify','--verbose','--print-certs',str(apk)],

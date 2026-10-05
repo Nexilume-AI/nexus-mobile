@@ -34,9 +34,9 @@ An Android companion for caller-authorized Agent workflows. Pair explicitly, ena
 
 ## Download the Android Beta
 
-[Download Nexus Mobile 0.1.2-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.2-beta.1/nexus-mobile-0.1.2-beta.1.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.2-beta.1)
+[Download Nexus Mobile 0.1.2-beta.2 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.2-beta.2/nexus-mobile-0.1.2-beta.2.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.2-beta.2)
 
-This signed **0.1.2-beta.1** adds consented WebRTC live screen, Home/Recents/long-press actions and reliable result delivery. It retains the bundled Google-independent QR scanner and guided permissions. Review the release notes before enabling Accessibility.
+This signed **0.1.2-beta.2** fixes native WebRTC initialization crashes after screen-sharing consent, safely pauses sync at Android's background time limit, and provides targeted recovery when Accessibility is enabled but control is disconnected. Pairing is retained during recovery. Review the release notes before enabling Accessibility.
 
 This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance remains pending; see the release notes for the verified upgrade scope. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
 

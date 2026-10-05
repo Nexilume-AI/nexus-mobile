@@ -2,6 +2,7 @@ package com.nexus.mobile
 
 import android.accessibilityservice.AccessibilityService
 import android.accessibilityservice.GestureDescription
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Path
 import android.os.Build
@@ -27,9 +28,10 @@ class NexusAccessibilityService : AccessibilityService() {
     private val screenshotExecutor = Executors.newSingleThreadExecutor()
 
     override fun onServiceConnected() {
+        super.onServiceConnected()
         NexusAccessibilityServiceHolder.service = this
         lastObservation = observe()
-        NexusMobileService.requestRefresh(this)
+        NexusMobileService.requestControlRefresh(this)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -39,13 +41,24 @@ class NexusAccessibilityService : AccessibilityService() {
 
     override fun onInterrupt() = Unit
 
+    override fun onUnbind(intent: Intent?): Boolean {
+        clearConnection()
+        return super.onUnbind(intent)
+    }
+
     override fun onDestroy() {
+        clearConnection()
+        screenshotExecutor.shutdownNow()
+        super.onDestroy()
+    }
+
+    private fun clearConnection() {
         if (NexusAccessibilityServiceHolder.service === this) {
             NexusAccessibilityServiceHolder.service = null
+            sharingPrivacy = MobileScreenPrivacy.UNKNOWN
+            lastObservation = MobileObservation()
+            NexusMobileService.requestControlRefresh(this)
         }
-        screenshotExecutor.shutdownNow()
-        NexusMobileService.requestRefresh(this)
-        super.onDestroy()
     }
 
     fun observeBlocking(): MobileObservation =

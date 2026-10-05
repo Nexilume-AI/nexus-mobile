@@ -9,7 +9,7 @@ sh gradlew testDebugUnitTest lintRelease assembleRelease --no-daemon
 python tools/verify_release.py --apk app/build/outputs/apk/release/app-release-unsigned.apk --aapt /path/to/build-tools/aapt
 ```
 
-The verifier rejects debug components, debuggable builds, cleartext traffic and backup-enabled applications. It checks the APK manifest, generates a SHA-256, and does not claim device or server acceptance.
+The verifier rejects debug components, debuggable builds, cleartext traffic and backup-enabled applications. It checks the APK manifest and required WebRTC JNI class definitions in DEX, generates a SHA-256, and does not claim device or server acceptance. Before publishing, also run the [minified-release crash regression](README.md#minified-release-crash-regression). Its debug-signed smoke APK must never be published; rebuild with production signing and without the smoke property for distribution.
 
 ## Signing
 

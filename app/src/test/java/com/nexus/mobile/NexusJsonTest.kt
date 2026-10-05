@@ -9,6 +9,20 @@ import org.junit.Test
 
 class NexusJsonTest {
     @Test
+    fun heartbeatDistinguishesGrantedPermissionFromConnectedControlWithoutVideoConsent() {
+        for (connected in listOf(false, true, false)) {
+            val body = JSONObject(NexusJson.encodeHeartbeat(MobileObservation(), connected,
+                "test", 36, "Test Android", accessibilityPermissionGranted = true))
+            val capabilities = body.getJSONObject("capabilities")
+            assertTrue(capabilities.getBoolean("accessibility_permission_granted"))
+            assertEquals(connected, capabilities.getBoolean("accessibility"))
+            assertEquals(connected, capabilities.getBoolean("gestures"))
+            assertEquals(connected, capabilities.getBoolean("screenshot"))
+            assertEquals(if (connected) "online" else "offline", body.getString("online_status"))
+        }
+    }
+
+    @Test
     fun parsesCommandEnvelopeWithExactGestureArguments() {
         val data = JSONObject(
             """

@@ -91,8 +91,12 @@
     <string name="home_offline_message">暂时无法连接 Cloud，请检查网络。</string>
     <string name="home_pairing_expired_message">配对已失效，请扫描新的二维码。</string>
     <string name="home_paused_message">已暂停，不再接收新操作。</string>
+    <string name="home_background_timeout_message">Android 的后台同步时限已到，已安全暂停。打开 Nexus Mobile，点击“开始同步”即可恢复，无需重新配对。</string>
     <string name="home_status_online">在线</string>
     <string name="home_status_setup">待设置</string>
+    <string name="accessibility_control_disconnected">控制服务未连接</string>
+    <string name="accessibility_control_recovery">权限已开启，但 Android 尚未连接控制服务。请在辅助功能设置中关闭再开启 Nexus Mobile Control，然后返回。配对会保留，无需开启屏幕共享。</string>
+    <string name="accessibility_reconnect_control">恢复控制连接</string>
     <string name="home_status_offline">离线</string>
     <string name="home_status_pair">重新配对</string>
     <string name="home_status_paused">已暂停</string>

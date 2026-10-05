@@ -11,9 +11,9 @@ An Android companion that lets authorized Nexus agents observe and interact with
 
 ## Download the Android Beta
 
-[Download Nexus Mobile 0.1.2-beta.1 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.2-beta.1/nexus-mobile-0.1.2-beta.1.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.2-beta.1)
+[Download Nexus Mobile 0.1.2-beta.2 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.2-beta.2/nexus-mobile-0.1.2-beta.2.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.2-beta.2)
 
-This signed **0.1.2-beta.1** adds consented WebRTC live screen, Home/Recents/long-press actions and reliable result delivery. It retains the bundled Google-independent QR scanner and guided permissions. Live screen needs compatible Cloud/Web; cross-NAT video may require TURN. Review outstanding physical-device checks before enabling Accessibility.
+This signed **0.1.2-beta.2** fixes native WebRTC initialization crashes after screen-sharing consent, safely pauses sync at Android's background time limit, and distinguishes an enabled Accessibility permission from a disconnected control service. Pairing is retained during recovery. Live screen needs compatible Cloud/Web; cross-NAT video may require TURN. Review outstanding physical-device checks before enabling Accessibility.
 
 This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance and upgrade continuity from an earlier signed release have not yet been verified. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
 
@@ -113,6 +113,35 @@ capture remains viewable but requires a fresh capture before further control.
 
 Use **Pause Nexus sync** or the notification's Pause action before entering sensitive information. Use the app's disconnect/unpair flow to remove local pairing. Revoke/delete or rotate the device credential in Console to stop server authorization. After revocation, verify the device stops receiving new commands. Disable Accessibility when you no longer want device control. A command already dispatched may have executed; revocation does not roll back its effects.
 
+On Android 15 and later, the system limits background `dataSync` service time.
+At that limit Nexus safely pauses, stops sharing, and preserves pairing and any
+pending action result. Open the app and choose **Start sync** to reconnect; it
+does not automatically restart and loop against Android's exhausted quota.
+See [Android's foreground-service time limits](https://developer.android.com/develop/background-work/services/fgs/timeout).
+
+### Minified-release crash regression
+
+Debug builds cannot detect R8 removing JNI-only WebRTC entry points. Before
+publishing, run `tools/verify_release.py` on the actual APK. It verifies the
+release manifest, branding and required JNI class definitions in DEX. Also run
+the native factory and sync-timeout smoke tests using the existing AVD harness:
+
+```bash
+sh gradlew -PnexusMobileReleaseSmoke=true assembleRelease assembleReleaseAndroidTest
+python tools/release_runtime_smoke.py --sdk "$ANDROID_HOME" \
+  --apk app/build/outputs/apk/release/app-release.apk \
+  --test-apk app/build/outputs/apk/androidTest/release/app-release-androidTest.apk
+```
+
+On Windows use `gradlew.bat`. The opt-in smoke build is minified and signed with
+the local debug key, rejects production signing credentials, and must **never
+be published**. Test instrumentation exists only in the separate test APK. The
+harness creates and removes a fresh API 34 AVD without connecting to Cloud or
+touching a phone. It tests actual native initialization, prompt local shutdown,
+pairing preservation, late network responses, and explicit resume. API 34 calls
+the timeout callback directly; system-enforced timeout and screen-consent
+acceptance still require an Android 15+ device or emulator.
+
 ## Privacy and limitations
 
 Observations redact detectable password, payment and verification contexts. Detection is best-effort, not a guarantee that arbitrary app content contains no personal data. Screenshots are optional, must not bypass FLAG_SECURE, and require a supported OS and an explicit command. Do not use financial or personal accounts for testing.
@@ -128,7 +157,8 @@ See [PRIVACY.md](PRIVACY.md), [SECURITY.md](SECURITY.md), [constraints](docs/CON
 | Camera is unavailable | Close other apps using it, check the system Camera access switch, then select Retry camera |
 | Invalid or expired QR | Generate a fresh Mobile pairing QR in Nexus Console; the scanner remains open for another attempt |
 | Pairing rejected | QR expiry, server identity and trusted HTTPS certificate |
-| setup_required | Accessibility service is not active |
+| setup_required | Enable Nexus Mobile Control in Android Accessibility settings |
+| control_disconnected | Permission is already enabled, but Android has not bound the service. Select Reconnect control, turn Nexus Mobile Control off and on in system settings, then return. Pairing is retained and video consent is not required. |
 | Android denies Accessibility access | Use the in-app restricted-settings guide and App info shortcut; if the option is missing or still blocked, check manufacturer or device-management restrictions |
 | No commands arrive | Sync status, Cloud availability, device authorization and Run scopes |
 | Screenshot denied | Android version, secure surfaces and sensitive screen content |

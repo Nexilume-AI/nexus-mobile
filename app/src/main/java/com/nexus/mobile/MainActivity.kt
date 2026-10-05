@@ -6,7 +6,6 @@ import android.app.AlertDialog
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -91,6 +90,7 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        NexusMobileService.requestControlRefresh(this)
         if (awaitingApplicationInfoReturn) {
             awaitingApplicationInfoReturn = false
             returnedFromApplicationInfo = true
@@ -98,7 +98,8 @@ class MainActivity : Activity() {
         if (awaitingPermissionReturn.isNotEmpty()) {
             permissionReturnHint = when {
                 awaitingPermissionReturn == "accessibility" && !isAccessibilityEnabled() ->
-                    getString(R.string.permission_guide_accessibility_return)
+                    getString(if (AccessibilityControlState.read(this).permissionGranted)
+                        R.string.accessibility_control_recovery else R.string.permission_guide_accessibility_return)
                 awaitingPermissionReturn == "notifications" && !notificationsEnabled() ->
                     getString(R.string.permission_guide_notification_return)
                 else -> ""
@@ -248,7 +249,9 @@ class MainActivity : Activity() {
             addView(statusPill(runtime.state))
         }
         addView(row)
-        addView(body(statusMessage(if (action == MobileHomeAction.SETUP) SyncState.SETUP_REQUIRED else runtime.state)))
+        addView(body(if (action != MobileHomeAction.SETUP && runtime.state == SyncState.STOPPED && runtime.message.isNotBlank())
+            runtime.message else statusMessage(if (action == MobileHomeAction.SETUP)
+                AccessibilityControlState.read(this@MainActivity).syncState else runtime.state)))
         addView(text(config.serverLabel(), 14f, Color.rgb(23, 32, 51), Typeface.NORMAL).withTopMargin(14))
         addView(text(getString(R.string.home_last_sync, lastSyncLabel(runtime)), 12f,
             Color.rgb(95, 107, 122), Typeface.NORMAL).withTopMargin(4))
@@ -284,7 +287,7 @@ class MainActivity : Activity() {
             }
             menu.add(0, 4, 3, R.string.home_privacy)
             if (config.isConfigured()) menu.add(0, 5, 6, R.string.home_remove_pairing)
-            if (config.isConfigured() && runtime.state in setOf(SyncState.ONLINE, SyncState.CONNECTING, SyncState.SETUP_REQUIRED)) {
+            if (config.isConfigured() && runtime.state in setOf(SyncState.ONLINE, SyncState.CONNECTING, SyncState.SETUP_REQUIRED, SyncState.CONTROL_DISCONNECTED)) {
                 menu.add(0, 6, 5, R.string.home_pause)
             }
             setOnMenuItemClickListener {
@@ -310,14 +313,23 @@ class MainActivity : Activity() {
     }
 
     private fun permissionCard(accessibilityReady: Boolean): View = card {
+        val control = AccessibilityControlState.read(this@MainActivity)
         val setup = AccessibilitySetupState.forDevice(
-            Build.VERSION.SDK_INT, accessibilityReady, returnedFromApplicationInfo,
+            Build.VERSION.SDK_INT, control.permissionGranted, returnedFromApplicationInfo,
         )
         val guide = PermissionGuideState.fromPermissions(
             accessibilityReady, notificationsEnabled(), guidePreferences.getBoolean(NOTIFICATIONS_DEFERRED, false),
         )
         val guiding = !guidePreferences.getBoolean(GUIDE_DISMISSED, false)
         addView(sectionTitle(getString(R.string.accessibility_permissions_title)))
+        if (control.permissionGranted && !accessibilityReady) {
+            addView(body(getString(R.string.accessibility_control_disconnected)).withTopMargin(12))
+            addView(body(getString(R.string.accessibility_control_recovery)).withTopMargin(8))
+            addView(primaryButton(getString(R.string.accessibility_reconnect_control)) {
+                showAccessibilityWalkthrough()
+            }.withTopMargin(12))
+            return@card
+        }
         if (!guiding || guide.step == PermissionGuideStep.FINISHED || guide.step == PermissionGuideStep.ACCESSIBILITY) {
             addView(guideStepRow(1, getString(R.string.accessibility_control_title), guide.accessibilityReady,
                 guiding && guide.step == PermissionGuideStep.ACCESSIBILITY,
@@ -538,6 +550,16 @@ class MainActivity : Activity() {
     }
 
     private fun showAccessibilityWalkthrough() {
+        val control = AccessibilityControlState.read(this)
+        if (control.permissionGranted && !control.connected) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.accessibility_reconnect_control)
+                .setMessage(R.string.accessibility_control_recovery)
+                .setNegativeButton(R.string.accessibility_not_now, null)
+                .setPositiveButton(R.string.permission_guide_open_settings) { _, _ -> openAccessibilitySettings() }
+                .showAccessible()
+            return
+        }
         val instructions = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(20), dp(8), dp(20), dp(12))
@@ -610,15 +632,7 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun isAccessibilityEnabled(): Boolean {
-        if (NexusAccessibilityServiceHolder.service != null) return true
-        val expected = ComponentName(this, NexusAccessibilityService::class.java).flattenToString()
-        val enabled = Settings.Secure.getString(
-            contentResolver,
-            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-        ).orEmpty()
-        return enabled.split(':').any { it.equals(expected, ignoreCase = true) }
-    }
+    private fun isAccessibilityEnabled(): Boolean = AccessibilityControlState.read(this).connected
 
     private fun card(
         borderColor: Int = Color.rgb(217, 225, 236),
@@ -681,6 +695,7 @@ class MainActivity : Activity() {
         val (label, backgroundColor, foreground) = when (state) {
             SyncState.ONLINE -> Triple(getString(R.string.home_status_online), Color.rgb(232, 248, 240), Color.rgb(19, 122, 85))
             SyncState.SETUP_REQUIRED -> Triple(getString(R.string.home_status_setup), Color.rgb(255, 246, 224), Color.rgb(154, 91, 0))
+            SyncState.CONTROL_DISCONNECTED -> Triple(getString(R.string.accessibility_control_disconnected), Color.rgb(255, 246, 224), Color.rgb(154, 91, 0))
             SyncState.OFFLINE -> Triple(getString(R.string.home_status_offline), Color.rgb(255, 246, 224), Color.rgb(154, 91, 0))
             SyncState.PAIRING_EXPIRED, SyncState.AUTH_FAILED ->
                 Triple(getString(R.string.home_status_pair), Color.rgb(255, 235, 232), Color.rgb(180, 35, 24))
@@ -770,6 +785,7 @@ class MainActivity : Activity() {
     private fun statusMessage(state: SyncState): String = when (state) {
         SyncState.ONLINE -> getString(R.string.home_online_message)
         SyncState.SETUP_REQUIRED -> getString(R.string.home_setup_message)
+        SyncState.CONTROL_DISCONNECTED -> getString(R.string.accessibility_control_recovery)
         SyncState.CONNECTING -> getString(R.string.home_connecting_message)
         SyncState.OFFLINE -> getString(R.string.home_offline_message)
         SyncState.PAIRING_EXPIRED, SyncState.AUTH_FAILED -> getString(R.string.home_pairing_expired_message)

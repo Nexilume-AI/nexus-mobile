@@ -49,6 +49,7 @@ data class PairingPayload(
 enum class SyncState(val persistedValue: String) {
     NOT_PAIRED("not_paired"),
     SETUP_REQUIRED("setup_required"),
+    CONTROL_DISCONNECTED("control_disconnected"),
     CONNECTING("connecting"),
     ONLINE("online"),
     OFFLINE("offline"),

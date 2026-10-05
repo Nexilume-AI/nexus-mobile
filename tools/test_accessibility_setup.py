@@ -43,6 +43,35 @@ def test_settings_return_rechecks_permission_without_granting_it():
     assert "WRITE_SECURE_SETTINGS" not in (ROOT / "AndroidManifest.xml").read_text(encoding="utf-8")
 
 
+def test_enabled_setting_is_not_treated_as_a_connected_service():
+    source = (ROOT / "java/com/nexus/mobile/MainActivity.kt").read_text(encoding="utf-8")
+    enabled = source.split("private fun isAccessibilityEnabled(): Boolean")[1].split("private fun card(")[0]
+    assert "ENABLED_ACCESSIBILITY_SERVICES" not in enabled
+    assert "accessibility_control_disconnected" in source
+    service = (ROOT / "java/com/nexus/mobile/NexusAccessibilityService.kt").read_text(encoding="utf-8")
+    assert "override fun onUnbind(" in service
+    sync = (ROOT / "java/com/nexus/mobile/NexusMobileService.kt").read_text(encoding="utf-8")
+    refresh = sync.split("fun requestControlRefresh(context: Context)")[1]
+    assert "refreshRequested?.set(true)" in refresh
+    assert "startService(" not in refresh and "startForegroundService(" not in refresh
+    assert "lastControl != control" in sync
+    assert "accessibilityPermissionGranted = control.permissionGranted" in sync
+
+
+def test_sync_timeout_stops_locally_without_waiting_for_cloud():
+    sync = (ROOT / "java/com/nexus/mobile/NexusMobileService.kt").read_text(encoding="utf-8")
+    assert "override fun onTimeout(startId: Int, fgsType: Int)" in sync
+    timeout = sync.split("override fun onTimeout(startId: Int, fgsType: Int)")[1].split("override fun onBind")[0]
+    assert "stopSelf()" in timeout and "stopForeground(" in timeout
+    assert "disconnect(" not in timeout and "apiClient." not in timeout
+    assert "MobileConfigStore.clear" not in timeout
+    assert "home_background_timeout_message" in timeout
+    assert "if (!running.get()) return false" in sync
+    for locale in ("values", "values-zh-rCN"):
+        strings = {row.attrib["name"]: row.text for row in ET.parse(ROOT / "res" / locale / "strings.xml").getroot()}
+        assert strings["home_background_timeout_message"].strip()
+
+
 def load_tests(loader, tests, pattern):
     """Run these guards under unittest as well as pytest."""
     return unittest.TestSuite(unittest.FunctionTestCase(value) for name, value in globals().items()
