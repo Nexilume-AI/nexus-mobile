@@ -5,6 +5,7 @@
 **Connect your phone. Stay in control.**
 
 [![License: Apache-2.0 modified](https://img.shields.io/badge/License-Apache--2.0_modified-17251d.svg)](LICENSE)
+[![Commercial demo](https://img.shields.io/badge/Demo-Commercial_edition-b8ef73.svg)](https://cloud.nexilume.com/)
 [![Documentation](https://img.shields.io/badge/Read-the_docs-b8ef73.svg)](README_GUIDE.md)
 [![Cite the technical report](https://img.shields.io/badge/Cite-technical_report-e8e9e4.svg)](#citation)
 [![Repository checks](https://github.com/Nexilume-AI/nexus-mobile/actions/workflows/ci.yml/badge.svg)](https://github.com/Nexilume-AI/nexus-mobile/actions/workflows/ci.yml)
@@ -16,6 +17,8 @@
 [Highlights](#highlights) · [Quick start](#quick-start) · [Documentation](#documentation) · [Ecosystem](#ecosystem) · [Contributing](#contributing) · [Citation](#citation)
 
 </div>
+
+> **[Try the Nexus Cloud commercial demo](https://cloud.nexilume.com/)**: Explore the hosted commercial edition. Some features in the demo are not included in the self-hosted Community edition.
 
 An Android companion for caller-authorized Agent workflows. Pair explicitly, enable the required permissions, and keep device synchronization visible.
 
