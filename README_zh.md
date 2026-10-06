@@ -14,13 +14,25 @@
 
 [English](README.md) · **简体中文**
 
-[功能](#可以做什么) · [快速开始](#快速开始) · [项目生态](#项目生态) · [参与贡献](#参与贡献) · [引用](#引用)
+[动机](#动机) · [功能](#可以做什么) · [快速开始](#快速开始) · [项目生态](#项目生态) · [参与贡献](#参与贡献) · [引用](#引用)
 
 </div>
 
 > **[在线体验 Nexus Cloud](https://cloud.nexilume.com/)**：在浏览器中探索 Nexus Cloud，也可以自行部署，开始使用。
 
-面向已授权 Agent 工作流的 Android 伴侣应用：显式配对、按需授权，保持同步状态可见。
+让你的 Android 手机参与到与 Nexus Agent 协作的任务中。
+
+## 动机
+
+你在电脑上和 Agent 一起处理一个任务，做到一半，下一步却在手机里的 App 中。于是你拿起手机，截图发过去，照着回复点击，再发一张图确认结果。任务还在继续，但你一直在两个屏幕之间来回，替 Agent 看界面、传信息、执行操作。
+
+如果 Agent 能直接看到手机当前的界面，完成一次操作后再查看变化，这些步骤就可以成为同一个任务的一部分，不必每一步都由你把对话翻译成点击。
+
+**Nexus Mobile 让你的 Android 手机参与 Agent 的任务，把“告诉我怎么做”延伸到“在手机上协助我做”。**
+
+将手机与 [Nexus Cloud](https://github.com/Nexilume-AI/nexus-cloud) 配对并绑定到任务后，具备手机工具的 Agent 可以读取可见界面元素、点击、输入文字和滑动。手机会返回执行结果，供 Agent 决定下一步。开启实时屏幕共享后，你也能在 Console 中跟随查看手机画面，了解任务进行到了哪里。
+
+你熟悉的 App 仍然在手机上运行，Agent 则可以在 Nexus 的其他运行环境中工作，在任务需要时使用手机。你可以把注意力放在想完成的事情上，减少来回复制、截图和描述页面变化的操作。这就是 Nexus Mobile 的出发点：让手机自然地参与到你已经在与 Agent 协作的任务中。
 
 ![Nexus Mobile 流程示意图](docs/media/overview.svg)
 
@@ -36,8 +48,6 @@
 ## 下载 Android Beta
 
 [下载 Nexus Mobile 0.1.2-beta.2 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.2-beta.2/nexus-mobile-0.1.2-beta.2.apk) · [发布说明与校验值](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.2-beta.2)
-
-签名版 **0.1.2-beta.2** 修复屏幕共享授权后的 WebRTC 原生初始化闪退，达到 Android 后台同步时限时安全暂停，并为“无障碍已授权但控制服务未连接”提供准确的恢复引导。恢复过程保留配对。实时画面需要兼容的 Cloud/Web，跨 NAT 可能需要 TURN。开启无障碍权限前请阅读发布说明。
 
 本版为自愿试用的 **Beta**，不代表通过生产或全部机型认证。真机端到端验收仍待完成，已验证的升级范围见发布说明。已安装的 Debug 版本使用不同签名，不能直接覆盖安装；如需迁移，请先保存需要的数据，再自行决定卸载 Debug 版本。
 

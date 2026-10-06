@@ -14,13 +14,41 @@
 
 **English** · [Chinese](README_zh.md)
 
-[Highlights](#highlights) · [Quick start](#quick-start) · [Documentation](#documentation) · [Ecosystem](#ecosystem) · [Contributing](#contributing) · [Citation](#citation)
+[Motivation](#motivation) · [Highlights](#highlights) · [Quick start](#quick-start) · [Documentation](#documentation) · [Ecosystem](#ecosystem) · [Contributing](#contributing) · [Citation](#citation)
 
 </div>
 
 > **[Try Nexus Cloud online](https://cloud.nexilume.com/)**: Explore Nexus Cloud in your browser, or self-host to get started.
 
-An Android companion for caller-authorized Agent workflows. Pair explicitly, enable the required permissions, and keep device synchronization visible.
+Bring your Android phone into the tasks you do with Nexus Agents.
+
+## Motivation
+
+You are working through a task with an Agent on your computer, and the next step
+is inside an app on your phone. You pick up the phone, send a screenshot, follow
+the Agent's instructions, then send another screenshot to show what changed. The
+task moves forward, but you keep switching screens to carry information and
+actions between them.
+
+What if the Agent could see the phone's current interface, take the next action
+and check the result? Those steps could become part of the same task, instead of
+a separate conversation you have to keep translating into taps.
+
+**Nexus Mobile brings your Android phone into the Agent's workflow, extending
+"tell me how" into "help me do it on my phone."**
+
+Once your phone is paired with
+[Nexus Cloud](https://github.com/Nexilume-AI/nexus-cloud) and attached to the task,
+an Agent with mobile tools can read visible interface elements, tap, enter text
+and swipe. The phone returns what happened, giving the Agent information for its
+next step. With live screen sharing enabled, you can also follow the phone's
+screen in Console as the task progresses.
+
+Your apps stay on your phone. The Agent can run elsewhere in Nexus and use the
+phone when the task calls for it. You can focus on what you want to accomplish,
+with less back-and-forth copying, screenshotting and describing each new screen.
+That is why Nexus Mobile exists: to make your phone part of the work you are
+already doing with an Agent.
 
 ![Nexus Mobile: illustrated workflow](docs/media/overview.svg)
 
@@ -38,8 +66,6 @@ An Android companion for caller-authorized Agent workflows. Pair explicitly, ena
 ## Download the Android Beta
 
 [Download Nexus Mobile 0.1.2-beta.2 APK](https://github.com/Nexilume-AI/nexus-mobile/releases/download/v0.1.2-beta.2/nexus-mobile-0.1.2-beta.2.apk) · [Release notes and checksums](https://github.com/Nexilume-AI/nexus-mobile/releases/tag/v0.1.2-beta.2)
-
-This signed **0.1.2-beta.2** fixes native WebRTC initialization crashes after screen-sharing consent, safely pauses sync at Android's background time limit, and provides targeted recovery when Accessibility is enabled but control is disconnected. Pairing is retained during recovery. Review the release notes before enabling Accessibility.
 
 This is an opt-in **Beta**, not a production/device-compatibility certification. Physical-device end-to-end acceptance remains pending; see the release notes for the verified upgrade scope. A previously installed debug build uses a different signer and cannot be updated in place with this APK; back up anything needed and explicitly remove the debug build only if you choose to migrate.
 
